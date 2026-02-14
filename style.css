@@ -155,6 +155,15 @@ button{
   background: #fff;
 }
 
+/* 合計行（tfoot）も固定 */
+#scoreTable tfoot td{
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+  background: #fafafa; /* 下が透けない */
+}
+
+
 /* 右下ボタン */
 #addScoreButton {
   position: fixed;
