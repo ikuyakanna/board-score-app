@@ -316,38 +316,81 @@ tfoot td{
 }
 
 /* =========================
-   iPad向け：点数入力モーダルを1画面に収める
+   点数入力モーダル：左一覧 + 右テンキー（2カラム）
    ========================= */
-/* =========================
-   点数入力（上部の名前＋入力欄）をさらに薄くする
-   ※スクロールはそのまま
-   ========================= */
-@media (min-width: 768px) and (max-width: 1024px){
+#scoreModal.modal{
+  overflow: hidden; /* モーダル全体はスクロールさせない（左だけスクロール） */
+}
 
-  /* 上部の入力一覧全体の間隔も少し詰める */
-  #scoreModal .scoreInputs{
-    gap: 6px;
-    margin-top: 6px;
+/* 2列の本体 */
+#scoreModal .modalBody{
+  display: grid;
+  grid-template-columns: 360px 1fr; /* 左を狭め / 右を広め（好みで調整） */
+  gap: 14px;
+  align-items: start;
+
+  /* ヘッダー分を除いた高さで収める */
+  max-height: calc(88dvh - 54px);
+}
+
+/* 左ペイン：ここだけ縦スクロール */
+#scoreModal .leftPane{
+  overflow: auto;
+  max-height: calc(88dvh - 54px);
+  padding-right: 4px; /* スクロールバー分の逃げ */
+}
+
+/* 右ペイン：テンキーは固定っぽく上に張り付け */
+#scoreModal .rightPane{
+  position: sticky;
+  top: 0;
+}
+
+/* 左側の一覧は“列幅狭めで一覧表示”に寄せる */
+#scoreModal .scoreInputs{
+  display: grid;
+  grid-template-columns: 1fr; /* 左は縦一覧 */
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* 行（名前＋点数）をコンパクトに */
+#scoreModal .scoreRow{
+  padding: 6px 8px;
+  gap: 6px;
+  grid-template-columns: 1fr 110px; /* 点数欄は狭め */
+}
+
+#scoreModal .scoreRow .name{
+  font-size: 13px;
+  line-height: 1.1;
+}
+
+#scoreModal .scoreRow input{
+  font-size: 18px;
+  padding: 6px 8px;
+  line-height: 1.1;
+}
+
+/* フッターは左ペイン内に収める */
+#scoreModal .modalFooter{
+  margin-top: 10px;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* iPad縦など狭い時は上下配置に戻す（保険） */
+@media (max-width: 900px){
+  #scoreModal .modalBody{
+    grid-template-columns: 1fr;
+    max-height: 88dvh;
   }
-
-  /* 1行（名前＋入力欄）の“縦”を削る本体 */
-  #scoreModal .scoreRow{
-    padding: 6px 8px;          /* ←縦paddingを減らす */
-    gap: 6px;
-    grid-template-columns: 1fr 110px; /* 入力欄を少し細く（縦にも効く） */
-    border-radius: 10px;
+  #scoreModal .leftPane{
+    max-height: none;
   }
-
-  #scoreModal .scoreRow .name{
-    font-size: 13px;
-    line-height: 1.05;         /* ←行高を詰める */
-  }
-
-  #scoreModal .scoreRow input{
-    font-size: 18px;
-    padding: 6px 8px;          /* ←入力欄の縦を削る */
-    line-height: 1.05;
-    border-radius: 8px;
+  #scoreModal .rightPane{
+    position: static;
   }
 }
+
 

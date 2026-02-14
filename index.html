@@ -101,51 +101,59 @@
   <!-- ===================== -->
   <div id="scoreModalOverlay" class="modalOverlay hidden"></div>
 
-  <div id="scoreModal" class="modal hidden" role="dialog" aria-modal="true">
-    <div class="modalHeader">
-      <h2>点数入力（このラウンド）</h2>
-      <button class="modalClose" id="scoreModalClose" aria-label="close">×</button>
+<div id="scoreModal" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modalHeader">
+    <h2>点数入力（このラウンド）</h2>
+    <button class="modalClose" id="scoreModalClose" aria-label="close">×</button>
+  </div>
+
+  <div class="modalBody">
+    <!-- 左：名前＋点数欄（一覧） -->
+    <div class="leftPane">
+      <div class="hint muted">
+        入力欄をタップしてからテンキーで入力（±/00/000対応）
+      </div>
+
+      <div id="scoreInputs" class="scoreInputs"></div>
+
+      <div class="modalFooter">
+        <button id="scoreModalCancel" class="btnSecondary">キャンセル</button>
+        <button id="scoreModalOk" class="btnPrimary">OK（1ラウンド追加）</button>
+      </div>
     </div>
 
-    <div class="hint muted">
-      入力欄をタップしてからテンキーで入力（±/00/000対応）
-    </div>
+    <!-- 右：テンキー -->
+    <div class="rightPane">
+      <div class="keypadArea">
+        <div class="keypadDisplay" id="keypadDisplay">0</div>
+        <div class="keypadGrid">
+          <button class="keyBtn" data-key="7">7</button>
+          <button class="keyBtn" data-key="8">8</button>
+          <button class="keyBtn" data-key="9">9</button>
 
-    <div id="scoreInputs" class="scoreInputs"></div>
+          <button class="keyBtn" data-key="4">4</button>
+          <button class="keyBtn" data-key="5">5</button>
+          <button class="keyBtn" data-key="6">6</button>
 
-    <div class="modalFooter">
-      <button id="scoreModalCancel" class="btnSecondary">キャンセル</button>
-      <button id="scoreModalOk" class="btnPrimary">OK（1ラウンド追加）</button>
-    </div>
+          <button class="keyBtn" data-key="1">1</button>
+          <button class="keyBtn" data-key="2">2</button>
+          <button class="keyBtn" data-key="3">3</button>
 
-    <!-- テンキー（モーダル内） -->
-    <div class="keypadArea">
-      <div class="keypadDisplay" id="keypadDisplay">0</div>
-      <div class="keypadGrid">
-        <button class="keyBtn" data-key="7">7</button>
-        <button class="keyBtn" data-key="8">8</button>
-        <button class="keyBtn" data-key="9">9</button>
+          <button class="keyBtn" data-key="0">0</button>
+          <button class="keyBtn" data-key="00">00</button>
+          <button class="keyBtn" data-key="000">000</button>
 
-        <button class="keyBtn" data-key="4">4</button>
-        <button class="keyBtn" data-key="5">5</button>
-        <button class="keyBtn" data-key="6">6</button>
+          <button class="keyBtn warning" data-action="sign">±</button>
+          <button class="keyBtn danger" data-action="back">⌫</button>
+          <button class="keyBtn danger" data-action="clear">C</button>
 
-        <button class="keyBtn" data-key="1">1</button>
-        <button class="keyBtn" data-key="2">2</button>
-        <button class="keyBtn" data-key="3">3</button>
-
-        <button class="keyBtn" data-key="0">0</button>
-        <button class="keyBtn" data-key="00">00</button>
-        <button class="keyBtn" data-key="000">000</button>
-
-        <button class="keyBtn warning" data-action="sign">±</button>
-        <button class="keyBtn danger" data-action="back">⌫</button>
-        <button class="keyBtn danger" data-action="clear">C</button>
-
-        <button class="keyBtn primary wide" data-action="enter">入力確定</button>
+          <button class="keyBtn primary wide" data-action="enter">入力確定</button>
+        </div>
       </div>
     </div>
   </div>
+</div>
+
 
   <script src="script.js"></script>
 </body>
