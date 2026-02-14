@@ -2,55 +2,102 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>Board Score App</title>
+  <title>スコア管理アプリ</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <h1>Board Score App</h1>
+<!-- ☰ ハンバーガー -->
+<div id="menuButton">☰</div>
 
-  <div class="container">
-    <div class="left">
-      <div class="add-player">
-        <input type="text" id="playerName" placeholder="プレイヤー名">
-        <button onclick="addPlayer()">追加</button>
-      </div>
+<!-- サイドメニュー -->
+<div id="sideMenu">
+  <h2>プロジェクト管理</h2>
+  <button onclick="showScreen('projectScreen')">＋ 新しいプロジェクト</button>
+  <hr>
+  <ul id="projectList">
+    <li>サンプルプロジェクト</li>
+  </ul>
+</div>
 
-      <div id="playerList"></div>
-    </div>
+<div id="overlay"></div>
 
-    <div class="right">
-      <h2 id="historyTitle">履歴</h2>
-      <div id="historyList"></div>
-    </div>
+<!-- ===================== -->
+<!-- メイン画面 -->
+<!-- ===================== -->
+<div id="mainScreen" class="screen">
+
+  <h1 id="projectTitle">プロジェクト名</h1>
+
+  <div class="tableContainer">
+    <table id="scoreTable">
+      <thead>
+        <tr>
+          <th></th>
+          <th>メンバー1</th>
+          <th>メンバー2</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>R1</td>
+          <td>100</td>
+          <td>200</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td>合計</td>
+          <td>100</td>
+          <td>200</td>
+        </tr>
+      </tfoot>
+    </table>
   </div>
 
-  <!-- テンキー（入力時のみ表示） -->
-  <div id="keypad" class="keypad hidden">
-    <div class="display" id="keypadDisplay">0</div>
+  <button id="addScoreButton">＋ 点数入力</button>
 
-    <div class="keys">
-      <button onclick="pressKey(7)">7</button>
-      <button onclick="pressKey(8)">8</button>
-      <button onclick="pressKey(9)">9</button>
+</div>
 
-      <button onclick="pressKey(4)">4</button>
-      <button onclick="pressKey(5)">5</button>
-      <button onclick="pressKey(6)">6</button>
+<!-- ===================== -->
+<!-- 新規プロジェクト画面 -->
+<!-- ===================== -->
+<div id="projectScreen" class="screen hidden">
 
-      <button onclick="pressKey(1)">1</button>
-      <button onclick="pressKey(2)">2</button>
-      <button onclick="pressKey(3)">3</button>
+  <h2>新しいプロジェクト</h2>
 
-      <button onclick="pressKey(0)">0</button>
-      <button onclick="pressDoubleZero()">00</button>
-      <button onclick="pressTripleZero()">000</button>
+  <input type="text" id="projectNameInput" placeholder="プロジェクト名を入力">
 
-      <button class="clear" onclick="clearInput()">C</button>
-      <button class="ok" onclick="confirmInput()">OK</button>
-    </div>
+  <br><br>
+
+  <button onclick="showScreen('memberScreen')">次へ</button>
+  <button onclick="showScreen('mainScreen')">戻る</button>
+
+</div>
+
+<!-- ===================== -->
+<!-- メンバー追加画面 -->
+<!-- ===================== -->
+<div id="memberScreen" class="screen hidden">
+
+  <h2>メンバー追加（最大6人）</h2>
+
+  <div id="memberInputs">
+    <input type="text" placeholder="メンバー1">
+    <input type="text" placeholder="メンバー2">
+    <input type="text" placeholder="メンバー3">
+    <input type="text" placeholder="メンバー4">
+    <input type="text" placeholder="メンバー5">
+    <input type="text" placeholder="メンバー6">
   </div>
 
-  <script src="script.js"></script>
+  <br>
+
+  <button>作成</button>
+  <button onclick="showScreen('projectScreen')">戻る</button>
+
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
