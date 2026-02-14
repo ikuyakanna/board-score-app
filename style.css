@@ -1,1 +1,91 @@
-{\rtf1}
+body {
+  font-family: sans-serif;
+  margin: 0;
+  background: #f2f2f2;
+}
+
+h1 {
+  text-align: center;
+  padding: 10px;
+}
+
+.container {
+  display: flex;
+  height: calc(100vh - 60px);
+}
+
+.left {
+  width: 50%;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.right {
+  width: 50%;
+  padding: 20px;
+  background: #ffffff;
+  overflow-y: auto;
+}
+
+.player {
+  background: white;
+  margin-bottom: 10px;
+  padding: 15px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.score {
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.history-item {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  font-size: 20px;
+}
+
+.keypad {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 20px;
+  box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
+}
+
+.hidden {
+  display: none;
+}
+
+.display {
+  font-size: 32px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.keys {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.keys button {
+  padding: 20px;
+  font-size: 22px;
+}
+
+.clear {
+  background: #ff4d4d;
+  color: white;
+}
+
+.ok {
+  background: #4CAF50;
+  color: white;
+}

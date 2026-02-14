@@ -1,9 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
+  <meta charset="UTF-8">
   <title>Board Score App</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>ボードゲーム得点アプリ</h1>
+
+  <h1>Board Score App</h1>
+
+  <div class="container">
+    <div class="left">
+      <div class="add-player">
+        <input type="text" id="playerName" placeholder="プレイヤー名">
+        <button onclick="addPlayer()">追加</button>
+      </div>
+
+      <div id="playerList"></div>
+    </div>
+
+    <div class="right">
+      <h2 id="historyTitle">履歴</h2>
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+  <!-- テンキー（入力時のみ表示） -->
+  <div id="keypad" class="keypad hidden">
+    <div class="display" id="keypadDisplay">0</div>
+
+    <div class="keys">
+      <button onclick="pressKey(7)">7</button>
+      <button onclick="pressKey(8)">8</button>
+      <button onclick="pressKey(9)">9</button>
+
+      <button onclick="pressKey(4)">4</button>
+      <button onclick="pressKey(5)">5</button>
+      <button onclick="pressKey(6)">6</button>
+
+      <button onclick="pressKey(1)">1</button>
+      <button onclick="pressKey(2)">2</button>
+      <button onclick="pressKey(3)">3</button>
+
+      <button onclick="pressKey(0)">0</button>
+      <button onclick="pressDoubleZero()">00</button>
+      <button onclick="pressTripleZero()">000</button>
+
+      <button class="clear" onclick="clearInput()">C</button>
+      <button class="ok" onclick="confirmInput()">OK</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
