@@ -1,107 +1,152 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>スコア管理アプリ</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<div class="header">
-  <!-- ☰ ハンバーガー -->
-  <div id="menuButton">☰</div>
+  <!-- ☰ -->
+  <div id="menuButton" aria-label="menu">☰</div>
 
   <!-- サイドメニュー -->
-  <div id="sideMenu">
+  <div id="sideMenu" aria-label="side menu">
     <h2>プロジェクト管理</h2>
-    <button onclick="showScreen('projectScreen')">＋ 新しいプロジェクト</button>
-    <hr>
+    <button class="btnPrimary" onclick="showScreen('projectScreen')">＋ 新しいプロジェクト</button>
+    <hr />
     <ul id="projectList">
-      <li>サンプルプロジェクト</li>
+      <!-- （次のステップで localStorage から自動生成します） -->
+      <li class="muted">（まだ履歴はありません）</li>
     </ul>
   </div>
 
+  <!-- サイドメニュー用オーバーレイ -->
   <div id="overlay"></div>
-</div>
 
+  <!-- ===================== -->
+  <!-- メイン画面 -->
+  <!-- ===================== -->
+  <div id="mainScreen" class="screen">
 
-<!-- ===================== -->
-<!-- メイン画面 -->
-<!-- ===================== -->
-<div id="mainScreen" class="screen">
+    <h1 id="projectTitle">プロジェクト名</h1>
 
-  <h1 id="projectTitle">プロジェクト名</h1>
+    <div class="tableContainer">
+      <table id="scoreTable">
+        <thead>
+          <tr>
+            <th></th>
+            <th>メンバー1</th>
+            <th>メンバー2</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>R1</td>
+            <td>100</td>
+            <td>200</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>合計</td>
+            <td>100</td>
+            <td>200</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
 
-  <div class="tableContainer">
-    <table id="scoreTable">
-      <thead>
-        <tr>
-          <th></th>
-          <th>メンバー1</th>
-          <th>メンバー2</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>R1</td>
-          <td>100</td>
-          <td>200</td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr>
-          <td>合計</td>
-          <td>100</td>
-          <td>200</td>
-        </tr>
-      </tfoot>
-    </table>
+    <button id="addScoreButton">＋ 点数入力</button>
   </div>
 
-  <button id="addScoreButton">＋ 点数入力</button>
+  <!-- ===================== -->
+  <!-- 新規プロジェクト画面 -->
+  <!-- ===================== -->
+  <div id="projectScreen" class="screen hidden">
+    <h2>新しいプロジェクト</h2>
 
-</div>
+    <input type="text" id="projectNameInput" placeholder="プロジェクト名を入力" />
 
-<!-- ===================== -->
-<!-- 新規プロジェクト画面 -->
-<!-- ===================== -->
-<div id="projectScreen" class="screen hidden">
-
-  <h2>新しいプロジェクト</h2>
-
-  <input type="text" id="projectNameInput" placeholder="プロジェクト名を入力">
-
-  <br><br>
-
-  <button onclick="showScreen('memberScreen')">次へ</button>
-  <button onclick="showScreen('mainScreen')">戻る</button>
-
-</div>
-
-<!-- ===================== -->
-<!-- メンバー追加画面 -->
-<!-- ===================== -->
-<div id="memberScreen" class="screen hidden">
-
-  <h2>メンバー追加（最大6人）</h2>
-
-  <div id="memberInputs">
-    <input type="text" placeholder="メンバー1">
-    <input type="text" placeholder="メンバー2">
-    <input type="text" placeholder="メンバー3">
-    <input type="text" placeholder="メンバー4">
-    <input type="text" placeholder="メンバー5">
-    <input type="text" placeholder="メンバー6">
+    <div class="rowButtons">
+      <button class="btnPrimary" onclick="showScreen('memberScreen')">次へ</button>
+      <button class="btnSecondary" onclick="showScreen('mainScreen')">戻る</button>
+    </div>
   </div>
 
-  <br>
+  <!-- ===================== -->
+  <!-- メンバー追加画面 -->
+  <!-- ===================== -->
+  <div id="memberScreen" class="screen hidden">
+    <h2>メンバー追加（最大6人）</h2>
 
-  <button onclick="createProject()">作成</button>
+    <div id="memberInputs" class="memberInputs">
+      <input type="text" placeholder="メンバー1" />
+      <input type="text" placeholder="メンバー2" />
+      <input type="text" placeholder="メンバー3" />
+      <input type="text" placeholder="メンバー4" />
+      <input type="text" placeholder="メンバー5" />
+      <input type="text" placeholder="メンバー6" />
+    </div>
 
-  <button onclick="showScreen('projectScreen')">戻る</button>
+    <div class="rowButtons">
+      <button class="btnPrimary" onclick="createProject()">作成</button>
+      <button class="btnSecondary" onclick="showScreen('projectScreen')">戻る</button>
+    </div>
+  </div>
 
-</div>
+  <!-- ===================== -->
+  <!-- 点数入力モーダル（全員分まとめ入力） -->
+  <!-- ===================== -->
+  <div id="scoreModalOverlay" class="modalOverlay hidden"></div>
 
-<script src="script.js"></script>
+  <div id="scoreModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modalHeader">
+      <h2>点数入力（このラウンド）</h2>
+      <button class="modalClose" id="scoreModalClose" aria-label="close">×</button>
+    </div>
+
+    <div class="hint muted">
+      入力欄をタップしてからテンキーで入力（±/00/000対応）
+    </div>
+
+    <div id="scoreInputs" class="scoreInputs"></div>
+
+    <div class="modalFooter">
+      <button id="scoreModalCancel" class="btnSecondary">キャンセル</button>
+      <button id="scoreModalOk" class="btnPrimary">OK（1ラウンド追加）</button>
+    </div>
+
+    <!-- テンキー（モーダル内） -->
+    <div class="keypadArea">
+      <div class="keypadDisplay" id="keypadDisplay">0</div>
+      <div class="keypadGrid">
+        <button class="keyBtn" data-key="7">7</button>
+        <button class="keyBtn" data-key="8">8</button>
+        <button class="keyBtn" data-key="9">9</button>
+
+        <button class="keyBtn" data-key="4">4</button>
+        <button class="keyBtn" data-key="5">5</button>
+        <button class="keyBtn" data-key="6">6</button>
+
+        <button class="keyBtn" data-key="1">1</button>
+        <button class="keyBtn" data-key="2">2</button>
+        <button class="keyBtn" data-key="3">3</button>
+
+        <button class="keyBtn" data-key="0">0</button>
+        <button class="keyBtn" data-key="00">00</button>
+        <button class="keyBtn" data-key="000">000</button>
+
+        <button class="keyBtn warning" data-action="sign">±</button>
+        <button class="keyBtn danger" data-action="back">⌫</button>
+        <button class="keyBtn danger" data-action="clear">C</button>
+
+        <button class="keyBtn primary wide" data-action="enter">入力確定</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
