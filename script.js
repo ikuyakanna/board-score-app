@@ -1,117 +1,169 @@
+// =============================
+// Elements
+// =============================
 const menuButton = document.getElementById("menuButton");
 const sideMenu = document.getElementById("sideMenu");
 const overlay = document.getElementById("overlay");
 
+// =============================
+// State
+// =============================
 let currentProject = {
   name: "",
   members: [],
   rounds: []
 };
 
-function openMenu(){
+// =============================
+// Menu open/close
+// =============================
+function openMenu() {
   sideMenu.classList.add("open");
   overlay.classList.add("show");
 }
 
-function closeMenu(){
+function closeMenu() {
   sideMenu.classList.remove("open");
   overlay.classList.remove("show");
 }
 
+function toggleMenu() {
+  if (sideMenu.classList.contains("open")) closeMenu();
+  else openMenu();
+}
+
+// ☰押下：トグル
 menuButton.addEventListener("click", (e) => {
   e.stopPropagation();
-  openMenu();
+  toggleMenu();
 });
 
-overlay.addEventListener("click", closeMenu);
-
-// メニュー外クリックでも閉じたい場合（保険）
-document.addEventListener("click", (e) => {
-  if (!sideMenu.classList.contains("open")) return;
-  if (!sideMenu.contains(e.target) && e.target !== menuButton) {
-    closeMenu();
-  }
+// overlayをタップ：閉じる（＝メインをタップしたら閉じる）
+overlay.addEventListener("click", () => {
+  closeMenu();
 });
 
+// メニュー内クリックは外に伝播させない（誤って閉じないため）
+sideMenu.addEventListener("click", (e) => {
+  e.stopPropagation();
+});
 
+// Escキーでも閉じる（PC確認用）
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeMenu();
+});
+
+// =============================
+// Screen switching
+// =============================
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(screen => {
     screen.classList.add("hidden");
   });
 
-  document.getElementById(id).classList.remove("hidden");
+  const target = document.getElementById(id);
+  if (target) target.classList.remove("hidden");
 
-  // メニュー閉じる
-  sideMenu.classList.remove("open");
-  overlay.classList.remove("show");
+  // 画面切替時はメニューを閉じる
+  closeMenu();
 }
 
+// =============================
+// Create Project
+// =============================
 function createProject() {
-
-  // プロジェクト名取得
   const projectName = document.getElementById("projectNameInput").value.trim();
   if (!projectName) {
     alert("プロジェクト名を入力してください");
     return;
   }
 
-  // メンバー取得
   const inputs = document.querySelectorAll("#memberInputs input");
-  let members = [];
-
-  inputs.forEach(input => {
-    const name = input.value.trim();
-    if (name) members.push(name);
-  });
+  const members = Array.from(inputs)
+    .map(i => i.value.trim())
+    .filter(v => v.length > 0);
 
   if (members.length === 0) {
     alert("メンバーを1人以上入力してください");
     return;
   }
+  if (members.length > 6) {
+    alert("メンバーは最大6人です");
+    return;
+  }
 
-  // データ保存
-  currentProject.name = projectName;
-  currentProject.members = members;
-  currentProject.rounds = [];
+  currentProject = {
+    name: projectName,
+    members,
+    rounds: []
+  };
 
-  // テーブル描画
   renderTable();
-
-  // メイン画面へ
   showScreen("mainScreen");
 }
 
-
+// =============================
+// Render table
+// =============================
 function renderTable() {
-
-  // タイトル変更
-  document.getElementById("projectTitle").textContent = currentProject.name;
+  // タイトル反映
+  const titleEl = document.getElementById("projectTitle");
+  if (titleEl) titleEl.textContent = currentProject.name || "プロジェクト名";
 
   const table = document.getElementById("scoreTable");
+  if (!table) return;
 
-  // ヘッダー作成
-  let thead = "<tr><th></th>";
-
+  // --- THEAD ---
+  let theadHtml = "<tr><th></th>";
   currentProject.members.forEach(member => {
-    thead += `<th>${member}</th>`;
+    theadHtml += `<th>${escapeHtml(member)}</th>`;
+  });
+  theadHtml += "</tr>";
+  table.querySelector("thead").innerHTML = theadHtml;
+
+  // --- TBODY (rounds) ---
+  const tbody = table.querySelector("tbody");
+  tbody.innerHTML = "";
+
+  currentProject.rounds.forEach((row, idx) => {
+    let tr = `<tr><td>R${idx + 1}</td>`;
+    for (let i = 0; i < currentProject.members.length; i++) {
+      const v = row[i] ?? 0;
+      tr += `<td>${v}</td>`;
+    }
+    tr += "</tr>";
+    tbody.insertAdjacentHTML("beforeend", tr);
   });
 
-  thead += "</tr>";
-
-  table.querySelector("thead").innerHTML = thead;
-
-  // 本文（まだラウンドなし）
-  table.querySelector("tbody").innerHTML = "";
-
-  // 合計行
-  let totals = "<tr><td>合計</td>";
-
-  currentProject.members.forEach(() => {
-    totals += "<td>0</td>";
+  // --- TFOOT (totals) ---
+  const totals = Array(currentProject.members.length).fill(0);
+  currentProject.rounds.forEach(row => {
+    for (let i = 0; i < totals.length; i++) {
+      totals[i] += Number(row[i] ?? 0);
+    }
   });
 
-  totals += "</tr>";
-
-  table.querySelector("tfoot").innerHTML = totals;
+  let tfootHtml = "<tr><td>合計</td>";
+  totals.forEach(t => {
+    tfootHtml += `<td>${t}</td>`;
+  });
+  tfootHtml += "</tr>";
+  table.querySelector("tfoot").innerHTML = tfootHtml;
 }
 
+// HTMLエスケープ（名前に記号入っても崩れないように）
+function escapeHtml(str) {
+  return String(str)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+// =============================
+// Expose to HTML onclick
+// =============================
+window.showScreen = showScreen;
+window.createProject = createProject;
+window.renderTable = renderTable;

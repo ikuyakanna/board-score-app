@@ -1,7 +1,7 @@
 body {
   font-family: sans-serif;
   margin: 0;
-  padding: 20px;
+  padding: 0; /* ← 20px から 0 に */
 }
 
 .screen {
@@ -92,4 +92,10 @@ th, td {
 
 #overlay.show{
   display: block;
+}
+
+/* ☰とタイトルが被らないようにする */
+#mainScreen{
+  padding: 20px;
+  padding-left: 76px;  /* ここで被りを回避。好みで 64〜96 */
 }
