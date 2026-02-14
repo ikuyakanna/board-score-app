@@ -98,19 +98,23 @@ button{
 }
 
 /* =========================
-   Table
+   Table + Header sticky
    ========================= */
+
+/* 表エリア：縦スクロールもここで受ける（ヘッダー固定のため） */
 .tableContainer {
-  overflow-x: auto;
+  overflow: auto; /* 横も縦も */
   margin-top: 16px;
   padding-bottom: 6px;
+  max-height: calc(100dvh - 140px); /* iPad横想定：必要なら微調整 */
+  -webkit-overflow-scrolling: touch;
 }
 
 #scoreTable{
   border-collapse: collapse;
   width: 100%;
-  table-layout: fixed; /* ★列幅固定 */
-  min-width: 0;       /* ★旧min-width潰し */
+  table-layout: fixed; /* ★重要：名前長さで列幅が変わらない */
+  min-width: 0;
 }
 
 #scoreTable th, #scoreTable td {
@@ -124,9 +128,10 @@ button{
   text-overflow: ellipsis;
 }
 
-#scoreTable tfoot td{
-  font-weight: 700;
-  background: #fafafa;
+/* 先頭（R列）固定幅 */
+#scoreTable th:first-child,
+#scoreTable td:first-child{
+  width: 60px;
 }
 
 /* 削除列は短く固定 */
@@ -135,6 +140,19 @@ button{
   width: 44px;
   padding: 6px 4px;
   text-align: center;
+}
+
+#scoreTable tfoot td{
+  font-weight: 700;
+  background: #fafafa;
+}
+
+/* ヘッダー固定 */
+#scoreTable thead th{
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #fff;
 }
 
 /* 右下ボタン */
@@ -346,12 +364,12 @@ button{
   margin-top: 10px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px; /* 少し圧縮 */
+  gap: 8px;
 }
 
 .keyBtn{
   font-size: 22px;
-  padding: 14px 10px; /* 少し圧縮 */
+  padding: 14px 10px;
   border-radius: 14px;
   border: 1px solid #bbb;
   background: #f6f6f6;
@@ -377,7 +395,7 @@ button{
   grid-column: 1 / span 3;
 }
 
-/* 右端ゴミ箱ボタン（共通） */
+/* 右端ゴミ箱ボタン（サイドメニュー用） */
 .iconBtn{
   border: none;
   background: transparent;

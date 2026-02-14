@@ -35,7 +35,6 @@ let currentProject = {
   updatedAt: 0
 };
 
-// 初期は「未選択」スタート
 let hasSelectedProject = false;
 
 // モーダルのモード（追加/編集）
@@ -178,8 +177,10 @@ function renderProjectList() {
       </div>
     `;
 
+    // 行クリック＝選択
     li.addEventListener("click", () => selectProject(p.id));
 
+    // ゴミ箱クリック＝削除（選択させない）
     const delBtn = li.querySelector('button[data-action="deleteProject"]');
     delBtn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -243,7 +244,7 @@ function createProject() {
 window.createProject = createProject;
 
 // =============================
-// Render table
+// Render table（colgroup無し安定版）
 // =============================
 function renderTable() {
   const titleEl = document.getElementById("projectTitle");
@@ -256,42 +257,12 @@ function renderTable() {
     table.querySelector("thead").innerHTML = "";
     table.querySelector("tbody").innerHTML = "";
     table.querySelector("tfoot").innerHTML = "";
-    const oldCol = table.querySelector("colgroup");
-    if (oldCol) oldCol.remove();
     return;
   }
 
   if (titleEl) titleEl.textContent = currentProject.name || "";
 
-  // ===== 列幅を人数で固定（colgroup） =====
-  const n = currentProject.members.length;
-
-  const oldCol = table.querySelector("colgroup");
-  if (oldCol) oldCol.remove();
-
-  const roundColPx = 60;   // "R1"列
-  const deleteColPx = 44;  // 🗑列（CSSと合わせる）
-  const memberColWidth = `calc((100% - ${roundColPx + deleteColPx}px) / ${n})`;
-
-  const colgroup = document.createElement("colgroup");
-
-  const colR = document.createElement("col");
-  colR.style.width = `${roundColPx}px`;
-  colgroup.appendChild(colR);
-
-  for (let i = 0; i < n; i++) {
-    const colM = document.createElement("col");
-    colM.style.width = memberColWidth;
-    colgroup.appendChild(colM);
-  }
-
-  const colD = document.createElement("col");
-  colD.style.width = `${deleteColPx}px`;
-  colgroup.appendChild(colD);
-
-  table.insertBefore(colgroup, table.firstChild);
-
-  // THEAD
+  // THEAD（最後に削除列）
   let theadHtml = "<tr><th></th>";
   currentProject.members.forEach(member => {
     theadHtml += `<th>${escapeHtml(member)}</th>`;
@@ -299,7 +270,7 @@ function renderTable() {
   theadHtml += `<th class="colDelete"></th></tr>`;
   table.querySelector("thead").innerHTML = theadHtml;
 
-  // TBODY
+  // TBODY（各行の右端に削除）
   const tbody = table.querySelector("tbody");
   tbody.innerHTML = "";
 
@@ -320,7 +291,7 @@ function renderTable() {
     tbody.insertAdjacentHTML("beforeend", tr);
   });
 
-  // TFOOT
+  // TFOOT（合計）
   const totals = Array(currentProject.members.length).fill(0);
   currentProject.rounds.forEach(row => {
     for (let i = 0; i < totals.length; i++) totals[i] += Number(row[i] ?? 0);
@@ -569,7 +540,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ラウンド行クリック：🗑なら削除、それ以外は編集
+  // ラウンド行クリック：🗑なら確認→削除、それ以外は編集
   const scoreTable = document.getElementById("scoreTable");
   const scoreTableBody = scoreTable?.querySelector("tbody");
 
