@@ -1,25 +1,4 @@
 // =============================
-// Elements (Menu)
-// =============================
-const menuButton = document.getElementById("menuButton");
-const sideMenu = document.getElementById("sideMenu");
-const overlay = document.getElementById("overlay");
-
-// =============================
-// Elements (Main / Modal)
-// =============================
-const addScoreButton = document.getElementById("addScoreButton");
-
-const scoreModal = document.getElementById("scoreModal");
-const scoreModalOverlay = document.getElementById("scoreModalOverlay");
-const scoreModalClose = document.getElementById("scoreModalClose");
-const scoreModalCancel = document.getElementById("scoreModalCancel");
-const scoreModalOk = document.getElementById("scoreModalOk");
-
-const scoreInputsContainer = document.getElementById("scoreInputs");
-const keypadDisplay = document.getElementById("keypadDisplay");
-
-// =============================
 // State
 // =============================
 let currentProject = {
@@ -30,40 +9,35 @@ let currentProject = {
 
 // テンキー入力状態
 let activeInput = null;
-let inputDigits = "0";     // 数字部分（符号は別）
-let isNegative = false;    // マイナスかどうか
+let inputDigits = "0";   // 数字部分（符号は別）
+let isNegative = false;  // マイナスかどうか
 
 // =============================
-// Menu open/close
+// Helpers
 // =============================
-function openMenu() {
-  sideMenu.classList.add("open");
-  overlay.classList.add("show");
-}
-function closeMenu() {
-  sideMenu.classList.remove("open");
-  overlay.classList.remove("show");
-}
-function toggleMenu() {
-  if (sideMenu.classList.contains("open")) closeMenu();
-  else openMenu();
+function escapeHtml(str) {
+  return String(str)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
-menuButton.addEventListener("click", (e) => {
-  e.stopPropagation();
-  toggleMenu();
-});
+function parseIntSafe(v) {
+  const n = parseInt(String(v).trim(), 10);
+  return Number.isFinite(n) ? n : 0;
+}
 
-overlay.addEventListener("click", () => {
-  closeMenu();
-});
-
-sideMenu.addEventListener("click", (e) => {
-  e.stopPropagation();
-});
+function normalizeDigits(d) {
+  // "00012" -> "12"（ただし "0" は維持）
+  d = d.replace(/^0+(?=\d)/, "");
+  if (d === "") return "0";
+  return d;
+}
 
 // =============================
-// Screen switching
+// Screen switching (global)
 // =============================
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(screen => {
@@ -73,14 +47,18 @@ function showScreen(id) {
   const target = document.getElementById(id);
   if (target) target.classList.remove("hidden");
 
+  // 画面切替時はメニュー閉じる
   closeMenu();
 }
+window.showScreen = showScreen;
 
 // =============================
-// Create Project
+// Create Project (global)
 // =============================
 function createProject() {
-  const projectName = document.getElementById("projectNameInput").value.trim();
+  const projectNameInput = document.getElementById("projectNameInput");
+  const projectName = (projectNameInput?.value || "").trim();
+
   if (!projectName) {
     alert("プロジェクト名を入力してください");
     return;
@@ -109,6 +87,7 @@ function createProject() {
   renderTable();
   showScreen("mainScreen");
 }
+window.createProject = createProject;
 
 // =============================
 // Render table
@@ -159,18 +138,33 @@ function renderTable() {
   table.querySelector("tfoot").innerHTML = tfootHtml;
 }
 
-function escapeHtml(str) {
-  return String(str)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+// =============================
+// Menu open/close
+// =============================
+let menuButton, sideMenu, overlay;
+
+function openMenu() {
+  sideMenu?.classList.add("open");
+  overlay?.classList.add("show");
+}
+
+function closeMenu() {
+  sideMenu?.classList.remove("open");
+  overlay?.classList.remove("show");
+}
+
+function toggleMenu() {
+  if (sideMenu?.classList.contains("open")) closeMenu();
+  else openMenu();
 }
 
 // =============================
 // Score modal open/close
 // =============================
+let addScoreButton;
+let scoreModal, scoreModalOverlay, scoreModalClose, scoreModalCancel, scoreModalOk;
+let scoreInputsContainer, keypadDisplay;
+
 function openScoreModal() {
   if (!currentProject.members || currentProject.members.length === 0) {
     alert("先にプロジェクトを作成してください");
@@ -203,33 +197,9 @@ function closeScoreModal() {
   activeInput = null;
 }
 
-addScoreButton.addEventListener("click", openScoreModal);
-scoreModalOverlay.addEventListener("click", closeScoreModal);
-scoreModalClose.addEventListener("click", closeScoreModal);
-scoreModalCancel.addEventListener("click", closeScoreModal);
-
-// OK：1ラウンド追加
-scoreModalOk.addEventListener("click", () => {
-  // 全員分取得
-  const inputs = scoreInputsContainer.querySelectorAll("input");
-  const row = Array.from(inputs).map(i => parseIntSafe(i.value));
-
-  // roundsに追加（加算方式：ラウンド値をそのまま保持）
-  currentProject.rounds.push(row);
-
-  // 反映
-  renderTable();
-  closeScoreModal();
-});
-
 // =============================
-// Activate input + Keypad
+// Activate input + keypad display
 // =============================
-function parseIntSafe(v) {
-  const n = parseInt(String(v).replace(/\s/g, ""), 10);
-  return Number.isFinite(n) ? n : 0;
-}
-
 function setActiveRowVisual(input) {
   scoreInputsContainer.querySelectorAll(".scoreRow").forEach(r => r.classList.remove("active"));
   const row = input.closest(".scoreRow");
@@ -260,89 +230,124 @@ function activateInput(input) {
   updateKeypadDisplay();
 }
 
-// 入力欄クリックでアクティブ切替
-scoreInputsContainer.addEventListener("click", (e) => {
-  const t = e.target;
-  if (t && t.tagName === "INPUT") {
-    activateInput(t);
+// =============================
+// DOM Ready: get elements & bind events
+// =============================
+document.addEventListener("DOMContentLoaded", () => {
+  // Menu elements
+  menuButton = document.getElementById("menuButton");
+  sideMenu = document.getElementById("sideMenu");
+  overlay = document.getElementById("overlay");
+
+  // Modal elements
+  addScoreButton = document.getElementById("addScoreButton");
+
+  scoreModal = document.getElementById("scoreModal");
+  scoreModalOverlay = document.getElementById("scoreModalOverlay");
+  scoreModalClose = document.getElementById("scoreModalClose");
+  scoreModalCancel = document.getElementById("scoreModalCancel");
+  scoreModalOk = document.getElementById("scoreModalOk");
+
+  scoreInputsContainer = document.getElementById("scoreInputs");
+  keypadDisplay = document.getElementById("keypadDisplay");
+
+  // -------- Menu events --------
+  menuButton?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleMenu();
+  });
+
+  overlay?.addEventListener("click", closeMenu);
+
+  sideMenu?.addEventListener("click", (e) => {
+    e.stopPropagation();
+  });
+
+  // -------- Score button --------
+  if (addScoreButton) {
+    addScoreButton.addEventListener("click", openScoreModal);
+  } else {
+    console.error("addScoreButton が見つかりません。index.html の id='addScoreButton' を確認してください");
   }
+
+  // -------- Modal close --------
+  scoreModalOverlay?.addEventListener("click", closeScoreModal);
+  scoreModalClose?.addEventListener("click", closeScoreModal);
+  scoreModalCancel?.addEventListener("click", closeScoreModal);
+
+  // OK：1ラウンド追加
+  scoreModalOk?.addEventListener("click", () => {
+    const inputs = scoreInputsContainer.querySelectorAll("input");
+    const row = Array.from(inputs).map(i => parseIntSafe(i.value));
+    currentProject.rounds.push(row);
+    renderTable();
+    closeScoreModal();
+  });
+
+  // 入力欄クリックでアクティブ切替
+  scoreInputsContainer?.addEventListener("click", (e) => {
+    const t = e.target;
+    if (t && t.tagName === "INPUT") {
+      activateInput(t);
+    }
+  });
+
+  // Keypad buttons: event delegation on scoreModal
+  scoreModal?.addEventListener("click", (e) => {
+    const btn = e.target.closest("button");
+    if (!btn) return;
+
+    const key = btn.dataset.key;
+    const action = btn.dataset.action;
+
+    if (key) {
+      if (inputDigits === "0") inputDigits = key;
+      else inputDigits += key;
+      inputDigits = normalizeDigits(inputDigits);
+
+      updateKeypadDisplay();
+      applyToActiveInput();
+      return;
+    }
+
+    if (action === "sign") {
+      isNegative = !isNegative;
+      updateKeypadDisplay();
+      applyToActiveInput();
+      return;
+    }
+
+    if (action === "back") {
+      inputDigits = inputDigits.slice(0, -1);
+      if (inputDigits === "") inputDigits = "0";
+      updateKeypadDisplay();
+      applyToActiveInput();
+      return;
+    }
+
+    if (action === "clear") {
+      inputDigits = "0";
+      isNegative = false;
+      updateKeypadDisplay();
+      applyToActiveInput();
+      return;
+    }
+
+    if (action === "enter") {
+      // 次の入力へ
+      if (!activeInput) return;
+      const idx = parseInt(activeInput.dataset.index, 10);
+      const next = scoreInputsContainer.querySelector(`input[data-index="${idx + 1}"]`);
+      if (next) activateInput(next);
+      return;
+    }
+  });
+
+  // Escで閉じる（PC確認用）
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (scoreModal && !scoreModal.classList.contains("hidden")) closeScoreModal();
+      closeMenu();
+    }
+  });
 });
-
-// =============================
-// Keypad buttons (event delegation)
-// =============================
-scoreModal.addEventListener("click", (e) => {
-  const btn = e.target.closest("button");
-  if (!btn) return;
-
-  const key = btn.dataset.key;
-  const action = btn.dataset.action;
-
-  if (key) {
-    // 数字入力
-    if (inputDigits === "0") inputDigits = key;
-    else inputDigits += key;
-
-    // 先頭に0が残るのを避ける（例: 0000 になりすぎるのはOKだが、気になるならここで整形）
-    inputDigits = normalizeDigits(inputDigits);
-
-    updateKeypadDisplay();
-    applyToActiveInput();
-    return;
-  }
-
-  if (action === "sign") {
-    isNegative = !isNegative;
-    updateKeypadDisplay();
-    applyToActiveInput();
-    return;
-  }
-
-  if (action === "back") {
-    inputDigits = inputDigits.slice(0, -1);
-    if (inputDigits === "") inputDigits = "0";
-    updateKeypadDisplay();
-    applyToActiveInput();
-    return;
-  }
-
-  if (action === "clear") {
-    inputDigits = "0";
-    isNegative = false;
-    updateKeypadDisplay();
-    applyToActiveInput();
-    return;
-  }
-
-  if (action === "enter") {
-    // 入力確定：次の入力欄へ移動（最後ならOK押す運用）
-    if (!activeInput) return;
-    const idx = parseInt(activeInput.dataset.index, 10);
-    const next = scoreInputsContainer.querySelector(`input[data-index="${idx + 1}"]`);
-    if (next) activateInput(next);
-    return;
-  }
-});
-
-function normalizeDigits(d) {
-  // "00012" -> "12"（ただし "0" は維持）
-  d = d.replace(/^0+(?=\d)/, "");
-  if (d === "") return "0";
-  return d;
-}
-
-// Escでモーダル閉じる（PC確認用）
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    // スコアモーダルが開いていたら閉じる
-    if (!scoreModal.classList.contains("hidden")) closeScoreModal();
-    // サイドメニューが開いていたら閉じる
-    closeMenu();
-  }
-});
-
-// =============================
-// Expose for HTML onclick
-// =============================
-window.showScreen = showScreen;
-window.createProject = createProject;
