@@ -318,64 +318,36 @@ tfoot td{
 /* =========================
    iPad向け：点数入力モーダルを1画面に収める
    ========================= */
+/* =========================
+   点数入力（上部の名前＋入力欄）をさらに薄くする
+   ※スクロールはそのまま
+   ========================= */
 @media (min-width: 768px) and (max-width: 1024px){
 
-  /* モーダル自体の余白を少し減らす */
-  #scoreModal.modal{
-    padding: 12px;
-    max-height: 92dvh;
+  /* 上部の入力一覧全体の間隔も少し詰める */
+  #scoreModal .scoreInputs{
+    gap: 6px;
+    margin-top: 6px;
   }
 
-  /* 見出し周りを詰める */
-  #scoreModal.modalHeader h2{
-    font-size: 18px;
-    margin: 0;
-  }
-  #scoreModal.hint{
-    margin: 6px 0 2px;
-    font-size: 12px;
-  }
-
-  /* 入力エリア：2列にして高さを削減 */
-  #scoreModal.scoreInputs{
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-top: 8px;
-  }
-
-  /* 各行（名前＋入力欄）をコンパクト化 */
-  #scoreModal.scoreRow{
-    grid-template-columns: 1fr 120px; /* 入力欄を少し細く */
-    gap: 8px;
-    padding: 8px;
-    border-radius: 12px;
-  }
-
-  #scoreModal.scoreRow .name{
-    font-size: 14px;   /* ←ここが「名前を小さく」の本体 */
-    font-weight: 700;
-    line-height: 1.2;
-  }
-
-  #scoreModal.scoreRow input{
-    font-size: 18px;
-    padding: 8px 10px;
+  /* 1行（名前＋入力欄）の“縦”を削る本体 */
+  #scoreModal .scoreRow{
+    padding: 6px 8px;          /* ←縦paddingを減らす */
+    gap: 6px;
+    grid-template-columns: 1fr 110px; /* 入力欄を少し細く（縦にも効く） */
     border-radius: 10px;
   }
 
-  /* フッターも少し詰める */
-  #scoreModal.modalFooter{
-    margin-top: 10px;
-    gap: 8px;
+  #scoreModal .scoreRow .name{
+    font-size: 13px;
+    line-height: 1.05;         /* ←行高を詰める */
   }
 
-  /* テンキー表示だけ少し詰める（ボタンサイズは触らない） */
-  #scoreModal.keypadArea{
-    margin-top: 10px;
-    padding-top: 10px;
-  }
-  #scoreModal.keypadDisplay{
-    font-size: 28px;
-    padding: 8px 10px;
+  #scoreModal .scoreRow input{
+    font-size: 18px;
+    padding: 6px 8px;          /* ←入力欄の縦を削る */
+    line-height: 1.05;
+    border-radius: 8px;
   }
 }
+
