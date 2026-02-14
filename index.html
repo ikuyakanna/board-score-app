@@ -9,10 +9,10 @@
 <body>
 
   <!-- ☰ -->
-  <div id="menuButton">☰</div>
+  <div id="menuButton" aria-label="menu">☰</div>
 
   <!-- サイドメニュー -->
-  <div id="sideMenu">
+  <div id="sideMenu" aria-label="side menu">
     <h2>プロジェクト管理</h2>
     <button class="btnPrimary" onclick="showScreen('projectScreen')">＋ 新しいプロジェクト</button>
     <hr />
@@ -21,24 +21,24 @@
     </ul>
   </div>
 
+  <!-- サイドメニュー用オーバーレイ -->
   <div id="overlay"></div>
 
   <!-- ===================== -->
   <!-- メイン画面 -->
   <!-- ===================== -->
-  <div id="mainScreen" class="screen">
-
+  <div id="mainScreen" class="screen noProject">
     <h1 id="projectTitle"></h1>
 
-  <div class="tableContainer">
-    <table id="scoreTable">
-      <thead></thead>
-      <tbody></tbody>
-      <tfoot></tfoot>
-    </table>
-  </div>
+    <div class="tableContainer">
+      <table id="scoreTable">
+        <thead></thead>
+        <tbody></tbody>
+        <tfoot></tfoot>
+      </table>
+    </div>
 
-  <button id="addScoreButton">＋ 点数入力</button>
+    <button id="addScoreButton">＋ 点数入力</button>
   </div>
 
   <!-- ===================== -->
@@ -81,19 +81,17 @@
   <!-- ===================== -->
   <div id="scoreModalOverlay" class="modalOverlay hidden"></div>
 
-  <div id="scoreModal" class="modal hidden">
-
+  <div id="scoreModal" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modalHeader">
-      <h2>点数入力（このラウンド）</h2>
-      <button class="modalClose" id="scoreModalClose">×</button>
+      <h2 id="scoreModalTitle">点数入力（このラウンド）</h2>
+      <button class="modalClose" id="scoreModalClose" aria-label="close">×</button>
     </div>
 
     <div class="modalBody">
-
-      <!-- 左：名前＋点数 -->
+      <!-- 左：名前＋点数欄（一覧） -->
       <div class="leftPane">
         <div class="hint muted">
-          入力欄をタップしてからテンキーで入力
+          入力欄をタップしてからテンキーで入力（±/00/000対応）
         </div>
 
         <div id="scoreInputs" class="scoreInputs"></div>
@@ -108,7 +106,6 @@
       <div class="rightPane">
         <div class="keypadArea">
           <div class="keypadDisplay" id="keypadDisplay">0</div>
-
           <div class="keypadGrid">
             <button class="keyBtn" data-key="7">7</button>
             <button class="keyBtn" data-key="8">8</button>
@@ -134,7 +131,6 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 

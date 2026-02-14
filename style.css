@@ -12,34 +12,32 @@ html, body {
 /* 画面共通 */
 .screen { display: block; }
 
-/* hidden は必ず勝つ（モーダル常時表示・画面の重なり防止） */
+/* hidden は必ず勝つ */
 .hidden { display: none !important; }
 
 /* =========================
    Layout paddings
    ========================= */
-/* ☰と被らないようにメインだけ左余白 */
-#mainScreen {
+#mainScreen{
   padding: 20px;
   padding-left: 76px;
 }
 
-/* 新規画面の余白 */
-#projectScreen, #memberScreen {
+#projectScreen, #memberScreen{
   padding: 20px;
   padding-left: 76px;
 }
 
-.rowButtons {
+.rowButtons{
   margin-top: 16px;
   display: flex;
   gap: 10px;
 }
 
 /* =========================
-   Form / text helpers
+   Form / helpers
    ========================= */
-input {
+input{
   font-size: 18px;
   padding: 10px;
   border-radius: 10px;
@@ -48,7 +46,7 @@ input {
   box-sizing: border-box;
 }
 
-.memberInputs {
+.memberInputs{
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
@@ -56,19 +54,18 @@ input {
   max-width: 520px;
 }
 
-.muted {
+.muted{
   color: #666;
   font-size: 14px;
 }
-
-.hint {
+.hint{
   margin: 8px 0 4px;
 }
 
 /* =========================
    Buttons
    ========================= */
-button {
+button{
   cursor: pointer;
   border: 1px solid #bbb;
   background: #f6f6f6;
@@ -77,13 +74,12 @@ button {
   font-size: 16px;
 }
 
-.btnPrimary {
+.btnPrimary{
   background: #2b7cff;
   color: #fff;
   border-color: #2b7cff;
 }
-
-.btnSecondary {
+.btnSecondary{
   background: #f6f6f6;
   color: #111;
 }
@@ -110,21 +106,35 @@ button {
   padding-bottom: 6px;
 }
 
-table {
+#scoreTable{
   border-collapse: collapse;
-  min-width: 700px;
+  width: 100%;
+  table-layout: fixed; /* ★列幅固定 */
+  min-width: 0;       /* ★旧min-width潰し */
 }
 
-th, td {
+#scoreTable th, #scoreTable td {
   border: 1px solid #ccc;
   padding: 12px;
   text-align: center;
   font-size: 18px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-tfoot td {
+#scoreTable tfoot td{
   font-weight: 700;
   background: #fafafa;
+}
+
+/* 削除列は短く固定 */
+#scoreTable th.colDelete,
+#scoreTable td.colDelete{
+  width: 44px;
+  padding: 6px 4px;
+  text-align: center;
 }
 
 /* 右下ボタン */
@@ -138,9 +148,18 @@ tfoot td {
 }
 
 /* =========================
+   未選択時：メイン画面は真っ白（何も見せない）
+   ========================= */
+#mainScreen.noProject #projectTitle,
+#mainScreen.noProject .tableContainer,
+#mainScreen.noProject #addScoreButton{
+  display: none !important;
+}
+
+/* =========================
    Side menu + overlay
    ========================= */
-#sideMenu {
+#sideMenu{
   position: fixed;
   top: 0;
   left: 0;
@@ -153,67 +172,60 @@ tfoot td {
   background: #222;
   color: #fff;
 
-  /* 初期は必ず隠す */
   transform: translateX(-100%);
   transition: transform .25s ease;
 
   z-index: 2002;
   pointer-events: none;
 }
-
-#sideMenu.open {
+#sideMenu.open{
   transform: translateX(0);
   pointer-events: auto;
 }
-
-#sideMenu hr {
+#sideMenu hr{
   border: none;
   border-top: 1px solid rgba(255,255,255,.2);
   margin: 14px 0;
 }
-
-#sideMenu ul {
+#sideMenu ul{
   list-style: none;
   padding: 0;
   margin: 0;
 }
-
-#sideMenu li {
+#sideMenu li{
   padding: 10px 8px;
   border-radius: 10px;
 }
-
-#sideMenu li:hover {
+#sideMenu li:hover{
   background: rgba(255,255,255,.08);
 }
 
-#overlay {
+/* Overlay */
+#overlay{
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,.35);
   display: none;
   z-index: 2001;
 }
-
-#overlay.show {
+#overlay.show{
   display: block;
 }
 
 /* =========================
    Modal overlay + modal
    ========================= */
-.modalOverlay {
+.modalOverlay{
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,.35);
   z-index: 3000;
 }
 
-/* 念のため個別にも hidden を最優先 */
 #scoreModal.hidden { display: none !important; }
 #scoreModalOverlay.hidden { display: none !important; }
 
-.modal {
+.modal{
   position: fixed;
   left: 50%;
   top: 50%;
@@ -227,18 +239,17 @@ tfoot td {
   padding: 16px;
   box-sizing: border-box;
 
-  /* ★重要：モーダルはスクロールさせず、中身で制御 */
   overflow: hidden;
 }
 
-.modalHeader {
+.modalHeader{
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
 
-.modalClose {
+.modalClose{
   font-size: 28px;
   background: transparent;
   border: none;
@@ -246,12 +257,10 @@ tfoot td {
   padding: 6px 10px;
 }
 
-/* =========================
-   Modal layout: left list + right keypad
-   ========================= */
-.modalBody {
+/* 2カラム */
+.modalBody{
   margin-top: 10px;
-  height: calc(90dvh - 70px); /* ヘッダー分ざっくり引く */
+  height: calc(90dvh - 70px);
   display: grid;
   grid-template-columns: 360px 1fr;
   gap: 14px;
@@ -259,20 +268,20 @@ tfoot td {
 }
 
 /* 左：一覧だけスクロール */
-.leftPane {
+.leftPane{
   height: 100%;
   overflow: auto;
   padding-right: 6px;
 }
 
-.scoreInputs {
+.scoreInputs{
   margin-top: 8px;
   display: grid;
   grid-template-columns: 1fr;
   gap: 8px;
 }
 
-.scoreRow {
+.scoreRow{
   display: grid;
   grid-template-columns: 1fr 110px;
   gap: 6px;
@@ -283,13 +292,13 @@ tfoot td {
   border-radius: 10px;
 }
 
-.scoreRow .name {
+.scoreRow .name{
   font-size: 13px;
   font-weight: 700;
   line-height: 1.1;
 }
 
-.scoreRow input {
+.scoreRow input{
   font-size: 18px;
   padding: 6px 8px;
   border-radius: 8px;
@@ -299,12 +308,12 @@ tfoot td {
   box-sizing: border-box;
 }
 
-.scoreRow.active {
+.scoreRow.active{
   border-color: #2b7cff;
   box-shadow: 0 0 0 3px rgba(43,124,255,.15);
 }
 
-.modalFooter {
+.modalFooter{
   margin-top: 10px;
   display: flex;
   justify-content: flex-end;
@@ -312,19 +321,18 @@ tfoot td {
 }
 
 /* 右：テンキー */
-.rightPane {
+.rightPane{
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 
-/* テンキーは上に置いてOK（固定っぽく見せたいなら sticky にしてもOK） */
-.keypadArea {
+.keypadArea{
   margin-top: 0;
   padding-top: 0;
 }
 
-.keypadDisplay {
+.keypadDisplay{
   font-size: 30px;
   font-weight: 800;
   text-align: right;
@@ -334,96 +342,82 @@ tfoot td {
   background: #fafafa;
 }
 
-.keypadGrid {
+.keypadGrid{
   margin-top: 10px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px; /* 10→8（縦をちょい縮め） */
+  gap: 8px; /* 少し圧縮 */
 }
 
-.keyBtn {
+.keyBtn{
   font-size: 22px;
-  padding: 14px 10px; /* 16→14（縦をちょい縮め） */
+  padding: 14px 10px; /* 少し圧縮 */
   border-radius: 14px;
   border: 1px solid #bbb;
   background: #f6f6f6;
 }
 
-.keyBtn.primary {
+.keyBtn.primary{
   background: #2b7cff;
   border-color: #2b7cff;
   color: #fff;
 }
 
-.keyBtn.danger {
+.keyBtn.danger{
   background: #ffefef;
   border-color: #ffb3b3;
 }
 
-.keyBtn.warning {
+.keyBtn.warning{
   background: #fff7e6;
   border-color: #ffd38a;
 }
 
-.keyBtn.wide {
+.keyBtn.wide{
   grid-column: 1 / span 3;
 }
 
-/* =========================
-   Responsive: narrow screens
-   ========================= */
-@media (max-width: 900px) {
-  .modal {
+/* 右端ゴミ箱ボタン（共通） */
+.iconBtn{
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 6px 8px;
+  border-radius: 10px;
+}
+.iconBtn:hover{
+  background: rgba(255,255,255,.10);
+}
+#sideMenu .iconBtn{
+  color: #fff;
+}
+
+/* テーブル内のゴミ箱 */
+.tableIconBtn{
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 6px 8px;
+  border-radius: 10px;
+}
+.tableIconBtn:hover{
+  background: rgba(0,0,0,.06);
+}
+
+/* 狭い画面では上下（保険） */
+@media (max-width: 900px){
+  .modal{
     height: 88dvh;
   }
-
-  .modalBody {
+  .modalBody{
     height: calc(88dvh - 70px);
     grid-template-columns: 1fr;
   }
-
-  .leftPane {
+  .leftPane{
     height: auto;
-    max-height: 40dvh; /* 上：一覧 */
-  }
-
-  .rightPane {
-    height: auto;
+    max-height: 40dvh;
   }
 }
-
-/* =========================
-   プロジェクト0件時の膜
-   ========================= */
-.emptyOverlay{
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.15);
-  z-index: 950; /* addScoreButton(900)より上 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.emptyCard{
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 16px;
-  padding: 18px 16px;
-  width: min(420px, 86vw);
-  box-shadow: 0 10px 30px rgba(0,0,0,.08);
-  text-align: center;
-}
-
-.emptyTitle{
-  font-size: 18px;
-  font-weight: 800;
-}
-
-.emptyText{
-  margin-top: 6px;
-  margin-bottom: 14px;
-  color: #555;
-  font-size: 14px;
-}
-

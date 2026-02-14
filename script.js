@@ -38,6 +38,10 @@ let currentProject = {
 // 初期は「未選択」スタート
 let hasSelectedProject = false;
 
+// モーダルのモード（追加/編集）
+let modalMode = "add";      // "add" | "edit"
+let editingRoundIndex = -1; // edit時の対象行
+
 // テンキー入力状態
 let activeInput = null;
 let inputDigits = "0";
@@ -118,6 +122,33 @@ function selectProject(id) {
   closeMenu();
 }
 
+function deleteProjectById(id) {
+  const p = projects.find(x => x.id === id);
+  if (!p) return;
+
+  const ok = confirm(`「${p.name}」を削除します。よろしいですか？`);
+  if (!ok) return;
+
+  projects = projects.filter(x => x.id !== id);
+  saveAllProjects(projects);
+  renderProjectList();
+
+  // 選択中が消えたら未選択に戻す
+  if (currentProjectId === id) {
+    hasSelectedProject = false;
+    currentProjectId = null;
+    currentProject = { id: null, name: "", members: [], rounds: [], updatedAt: 0 };
+
+    setMainNoProjectState(true);
+    const addBtn = document.getElementById("addScoreButton");
+    if (addBtn) addBtn.disabled = true;
+
+    renderTable();
+    showScreen("mainScreen");
+    openMenu();
+  }
+}
+
 function renderProjectList() {
   const ul = document.getElementById("projectList");
   if (!ul) return;
@@ -131,19 +162,30 @@ function renderProjectList() {
 
   projects.forEach(p => {
     const li = document.createElement("li");
-    li.style.cursor = "pointer";
     li.dataset.id = p.id;
 
     li.innerHTML = `
-      <div style="display:flex; flex-direction:column; gap:2px;">
-        <div style="font-weight:700;">${escapeHtml(p.name)}</div>
-        <div class="muted" style="color:#bbb; font-size:12px;">
-          メンバー:${p.members.length} / ラウンド:${p.rounds.length}
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+        <div style="display:flex; flex-direction:column; gap:2px; min-width:0;">
+          <div style="font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+            ${escapeHtml(p.name)}
+          </div>
+          <div class="muted" style="color:#bbb; font-size:12px;">
+            メンバー:${p.members.length} / ラウンド:${p.rounds.length}
+          </div>
         </div>
+        <button class="iconBtn" data-action="deleteProject" title="削除">🗑</button>
       </div>
     `;
 
     li.addEventListener("click", () => selectProject(p.id));
+
+    const delBtn = li.querySelector('button[data-action="deleteProject"]');
+    delBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteProjectById(p.id);
+    });
+
     ul.appendChild(li);
   });
 }
@@ -163,7 +205,7 @@ function createProject() {
   const inputs = document.querySelectorAll("#memberInputs input");
   const members = Array.from(inputs)
     .map(i => i.value.trim())
-    .filter(v => v.length > 0);
+    .filter(v => v.length > 0); // ★空欄は不参加
 
   if (members.length === 0) {
     alert("メンバーを1人以上入力してください");
@@ -188,7 +230,6 @@ function createProject() {
   if (projectNameInput) projectNameInput.value = "";
   inputs.forEach(i => (i.value = ""));
 
-  // ★新規作成＝選択済み
   hasSelectedProject = true;
   setMainNoProjectState(false);
 
@@ -209,23 +250,53 @@ function renderTable() {
   const table = document.getElementById("scoreTable");
   if (!table) return;
 
-  // 未選択（membersなし）なら何も描かない
+  // 未選択なら空
   if (!currentProject.members || currentProject.members.length === 0) {
     if (titleEl) titleEl.textContent = "";
     table.querySelector("thead").innerHTML = "";
     table.querySelector("tbody").innerHTML = "";
     table.querySelector("tfoot").innerHTML = "";
+    const oldCol = table.querySelector("colgroup");
+    if (oldCol) oldCol.remove();
     return;
   }
 
-  if (titleEl) titleEl.textContent = currentProject.name || "プロジェクト名";
+  if (titleEl) titleEl.textContent = currentProject.name || "";
+
+  // ===== 列幅を人数で固定（colgroup） =====
+  const n = currentProject.members.length;
+
+  const oldCol = table.querySelector("colgroup");
+  if (oldCol) oldCol.remove();
+
+  const roundColPx = 60;   // "R1"列
+  const deleteColPx = 44;  // 🗑列（CSSと合わせる）
+  const memberColWidth = `calc((100% - ${roundColPx + deleteColPx}px) / ${n})`;
+
+  const colgroup = document.createElement("colgroup");
+
+  const colR = document.createElement("col");
+  colR.style.width = `${roundColPx}px`;
+  colgroup.appendChild(colR);
+
+  for (let i = 0; i < n; i++) {
+    const colM = document.createElement("col");
+    colM.style.width = memberColWidth;
+    colgroup.appendChild(colM);
+  }
+
+  const colD = document.createElement("col");
+  colD.style.width = `${deleteColPx}px`;
+  colgroup.appendChild(colD);
+
+  table.insertBefore(colgroup, table.firstChild);
 
   // THEAD
   let theadHtml = "<tr><th></th>";
   currentProject.members.forEach(member => {
     theadHtml += `<th>${escapeHtml(member)}</th>`;
   });
-  theadHtml += "</tr>";
+  theadHtml += `<th class="colDelete"></th></tr>`;
   table.querySelector("thead").innerHTML = theadHtml;
 
   // TBODY
@@ -233,28 +304,31 @@ function renderTable() {
   tbody.innerHTML = "";
 
   currentProject.rounds.forEach((row, idx) => {
-    let tr = `<tr><td>R${idx + 1}</td>`;
+    let tr = `<tr data-round-index="${idx}" style="cursor:pointer;"><td>R${idx + 1}</td>`;
     for (let i = 0; i < currentProject.members.length; i++) {
       const v = Number(row[i] ?? 0);
       tr += `<td>${v}</td>`;
     }
+
+    tr += `
+      <td class="colDelete">
+        <button class="tableIconBtn" data-action="deleteRound" title="削除">🗑</button>
+      </td>
+    `;
     tr += "</tr>";
+
     tbody.insertAdjacentHTML("beforeend", tr);
   });
 
-  // TFOOT (totals)
+  // TFOOT
   const totals = Array(currentProject.members.length).fill(0);
   currentProject.rounds.forEach(row => {
-    for (let i = 0; i < totals.length; i++) {
-      totals[i] += Number(row[i] ?? 0);
-    }
+    for (let i = 0; i < totals.length; i++) totals[i] += Number(row[i] ?? 0);
   });
 
   let tfootHtml = "<tr><td>合計</td>";
-  totals.forEach(t => {
-    tfootHtml += `<td>${t}</td>`;
-  });
-  tfootHtml += "</tr>";
+  totals.forEach(t => (tfootHtml += `<td>${t}</td>`));
+  tfootHtml += `<td class="colDelete"></td></tr>`;
   table.querySelector("tfoot").innerHTML = tfootHtml;
 }
 
@@ -283,27 +357,55 @@ function toggleMenu() {
 // =============================
 let addScoreButton;
 let scoreModal, scoreModalOverlay, scoreModalClose, scoreModalCancel, scoreModalOk;
-let scoreInputsContainer, keypadDisplay;
+let scoreInputsContainer, keypadDisplay, scoreModalTitle;
 
-function openScoreModal() {
-  if (!hasSelectedProject || !currentProject.members || currentProject.members.length === 0) {
-    alert("先にプロジェクトを選択するか新規作成してください");
-    return;
-  }
-
+function buildScoreInputs(values) {
   scoreInputsContainer.innerHTML = "";
   currentProject.members.forEach((name, idx) => {
     const row = document.createElement("div");
     row.className = "scoreRow";
+    const v = values && Array.isArray(values) ? Number(values[idx] ?? 0) : 0;
+
     row.innerHTML = `
       <div class="name">${escapeHtml(name)}</div>
-      <input type="text" inputmode="none" value="0" data-index="${idx}" />
+      <input type="text" inputmode="none" value="${v}" data-index="${idx}" />
     `;
     scoreInputsContainer.appendChild(row);
   });
 
   const firstInput = scoreInputsContainer.querySelector("input");
   if (firstInput) activateInput(firstInput);
+}
+
+function openScoreModalAdd() {
+  if (!hasSelectedProject || !currentProject.members || currentProject.members.length === 0) {
+    alert("先にプロジェクトを選択するか新規作成してください");
+    return;
+  }
+
+  modalMode = "add";
+  editingRoundIndex = -1;
+
+  if (scoreModalTitle) scoreModalTitle.textContent = "点数入力（このラウンド）";
+  if (scoreModalOk) scoreModalOk.textContent = "OK（1ラウンド追加）";
+
+  buildScoreInputs(null);
+
+  scoreModalOverlay.classList.remove("hidden");
+  scoreModal.classList.remove("hidden");
+}
+
+function openScoreModalEdit(roundIndex) {
+  if (!hasSelectedProject) return;
+  if (roundIndex < 0 || roundIndex >= currentProject.rounds.length) return;
+
+  modalMode = "edit";
+  editingRoundIndex = roundIndex;
+
+  if (scoreModalTitle) scoreModalTitle.textContent = `ラウンド編集（R${roundIndex + 1}）`;
+  if (scoreModalOk) scoreModalOk.textContent = "OK（このラウンドを更新）";
+
+  buildScoreInputs(currentProject.rounds[roundIndex]);
 
   scoreModalOverlay.classList.remove("hidden");
   scoreModal.classList.remove("hidden");
@@ -358,12 +460,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Modal
   addScoreButton = document.getElementById("addScoreButton");
-
   scoreModal = document.getElementById("scoreModal");
   scoreModalOverlay = document.getElementById("scoreModalOverlay");
   scoreModalClose = document.getElementById("scoreModalClose");
   scoreModalCancel = document.getElementById("scoreModalCancel");
   scoreModalOk = document.getElementById("scoreModalOk");
+  scoreModalTitle = document.getElementById("scoreModalTitle");
 
   scoreInputsContainer = document.getElementById("scoreInputs");
   keypadDisplay = document.getElementById("keypadDisplay");
@@ -374,7 +476,7 @@ document.addEventListener("DOMContentLoaded", () => {
     toggleMenu();
   });
 
-  // 外側タップ
+  // 外側タップ：未選択なら閉じないでメッセージ
   overlay?.addEventListener("click", () => {
     if (sideMenu?.classList.contains("open") && !hasSelectedProject) {
       alert("プロジェクトを選択するか新規作成してください");
@@ -386,18 +488,24 @@ document.addEventListener("DOMContentLoaded", () => {
   sideMenu?.addEventListener("click", (e) => e.stopPropagation());
 
   // -------- Score button --------
-  addScoreButton?.addEventListener("click", openScoreModal);
+  addScoreButton?.addEventListener("click", openScoreModalAdd);
 
   // -------- Modal close --------
   scoreModalOverlay?.addEventListener("click", closeScoreModal);
   scoreModalClose?.addEventListener("click", closeScoreModal);
   scoreModalCancel?.addEventListener("click", closeScoreModal);
 
-  // OK：1ラウンド追加 → 保存
+  // OK：追加 or 編集 → 保存
   scoreModalOk?.addEventListener("click", () => {
     const inputs = scoreInputsContainer.querySelectorAll("input");
     const row = Array.from(inputs).map(i => parseIntSafe(i.value));
-    currentProject.rounds.push(row);
+
+    if (modalMode === "add") {
+      currentProject.rounds.push(row);
+    } else if (modalMode === "edit" && editingRoundIndex >= 0) {
+      currentProject.rounds[editingRoundIndex] = row;
+    }
+
     currentProject.updatedAt = Date.now();
 
     renderTable();
@@ -461,6 +569,34 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // ラウンド行クリック：🗑なら削除、それ以外は編集
+  const scoreTable = document.getElementById("scoreTable");
+  const scoreTableBody = scoreTable?.querySelector("tbody");
+
+  scoreTableBody?.addEventListener("click", (e) => {
+    const tr = e.target.closest("tr");
+    if (!tr) return;
+
+    const idx = parseInt(tr.dataset.roundIndex, 10);
+    if (!Number.isFinite(idx)) return;
+
+    const btn = e.target.closest('button[data-action="deleteRound"]');
+    if (btn) {
+      e.stopPropagation();
+      const ok = confirm(`R${idx + 1} を削除します。よろしいですか？`);
+      if (!ok) return;
+
+      currentProject.rounds.splice(idx, 1);
+      currentProject.updatedAt = Date.now();
+
+      renderTable();
+      syncCurrentToList();
+      return;
+    }
+
+    openScoreModalEdit(idx);
+  });
+
   // Esc
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
@@ -484,6 +620,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const addBtn = document.getElementById("addScoreButton");
   if (addBtn) addBtn.disabled = true;
 
-  // ★0件でもメニューは開いたまま
+  // 0件でもメニューは開いたまま
   openMenu();
 });
