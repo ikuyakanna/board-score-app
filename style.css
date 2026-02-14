@@ -1,65 +1,23 @@
 html, body {
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
   font-family: sans-serif;
   background: #fff;
 }
 
-/* 画面共通 */
-.screen {
-  display: block;
-}
-.hidden {
-  display: none;
-}
+/* 画面 */
+.screen { display: block; }
+.hidden { display: none; }
 
-/* ☰と被らないようにメインだけ左余白 */
-#mainScreen{
-  padding: 20px;
-  padding-left: 76px; /* 好みで 64〜96 */
-}
-
-/* 新規画面の余白 */
-#projectScreen, #memberScreen{
+#mainScreen,
+#projectScreen,
+#memberScreen {
   padding: 20px;
   padding-left: 76px;
 }
 
-.rowButtons{
-  margin-top: 16px;
-  display: flex;
-  gap: 10px;
-}
-
-/* ちょい整形 */
-input{
-  font-size: 18px;
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #bbb;
-  width: min(520px, 92vw);
-  box-sizing: border-box;
-}
-
-.memberInputs{
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-  margin-top: 10px;
-  max-width: 520px;
-}
-
-.muted{
-  color: #666;
-  font-size: 14px;
-}
-.hint{
-  margin: 8px 0 4px;
-}
-
-/* ボタン共通 */
-button{
+/* ボタン */
+button {
   cursor: pointer;
   border: 1px solid #bbb;
   background: #f6f6f6;
@@ -68,17 +26,16 @@ button{
   font-size: 16px;
 }
 
-.btnPrimary{
+.btnPrimary {
   background: #2b7cff;
   color: #fff;
   border-color: #2b7cff;
 }
-.btnSecondary{
+
+.btnSecondary {
   background: #f6f6f6;
-  color: #111;
 }
 
-/* ハンバーガー */
 #menuButton {
   position: fixed;
   top: 16px;
@@ -86,14 +43,12 @@ button{
   font-size: 28px;
   cursor: pointer;
   z-index: 1001;
-  user-select: none;
 }
 
 /* テーブル */
 .tableContainer {
   overflow-x: auto;
   margin-top: 16px;
-  padding-bottom: 6px;
 }
 
 table {
@@ -105,184 +60,105 @@ th, td {
   border: 1px solid #ccc;
   padding: 12px;
   text-align: center;
-  font-size: 18px;
 }
 
-tfoot td{
-  font-weight: 700;
-  background: #fafafa;
-}
-
-/* 右下ボタン */
-#addScoreButton {
-  position: fixed;
-  right: 22px;
-  bottom: 22px;
-  padding: 14px 20px;
-  font-size: 18px;
-  z-index: 900;
-}
-
-/* --- Side menu (final) --- */
-#sideMenu{
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 300px;
-  max-width: 80vw;
-  height: 100dvh;
-  padding: 20px;
-  box-sizing: border-box;
-
-  background: #222;
-  color: #fff;
-
-  transform: translateX(-100%);
-  transition: transform .25s ease;
-
-  z-index: 2002;
-  pointer-events: none;
-}
-#sideMenu.open{
-  transform: translateX(0);
-  pointer-events: auto;
-}
-#sideMenu hr{
-  border: none;
-  border-top: 1px solid rgba(255,255,255,.2);
-  margin: 14px 0;
-}
-#sideMenu ul{
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-#sideMenu li{
-  padding: 10px 8px;
-  border-radius: 10px;
-}
-#sideMenu li:hover{
-  background: rgba(255,255,255,.08);
-}
-
-/* --- Overlay (final) --- */
-#overlay{
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.35);
-  display: none;
-  z-index: 2001;
-}
-#overlay.show{
-  display: block;
-}
-
-/* ---------- Score modal ---------- */
-.modalOverlay{
+/* モーダル */
+.modalOverlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,.35);
   z-index: 3000;
 }
 
-.modal{
+.modal {
   position: fixed;
   left: 50%;
   top: 50%;
   transform: translate(-50%,-50%);
-  width: min(900px, 92vw);
-  max-height: 88dvh;
-  overflow: auto;
+  width: min(1000px, 95vw);
+  height: 90dvh;
   background: #fff;
   border-radius: 16px;
-  z-index: 3001;
   padding: 16px;
   box-sizing: border-box;
+  z-index: 3001;
+  display: flex;
+  flex-direction: column;
 }
 
-.modalHeader{
+.modalHeader {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-}
-
-.modalClose{
-  font-size: 28px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 6px 10px;
-}
-
-.scoreInputs{
-  margin-top: 10px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.scoreRow{
-  display: grid;
-  grid-template-columns: 1fr 160px;
-  gap: 10px;
   align-items: center;
-  padding: 10px;
+}
+
+/* 2カラム */
+.modalBody {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 16px;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* 左：スクロール */
+.leftPane {
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.scoreInputs {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.scoreRow {
+  display: grid;
+  grid-template-columns: 1fr 110px;
+  gap: 6px;
+  padding: 6px 8px;
   border: 1px solid #ddd;
-  border-radius: 12px;
-}
-
-.scoreRow .name{
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.scoreRow input{
-  font-size: 22px;
-  padding: 10px;
   border-radius: 10px;
-  border: 1px solid #bbb;
+}
+
+.scoreRow .name {
+  font-size: 13px;
+}
+
+.scoreRow input {
+  font-size: 18px;
+  padding: 6px 8px;
   text-align: right;
-  width: 100%;
 }
 
-.scoreRow.active{
-  border-color: #2b7cff;
-  box-shadow: 0 0 0 3px rgba(43,124,255,.15);
-}
-
-.modalFooter{
-  margin-top: 14px;
+/* 右：テンキー固定 */
+.rightPane {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+  flex-direction: column;
 }
 
-/* Keypad */
-.keypadArea{
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid #eee;
+.keypadArea {
+  margin-top: auto;
 }
 
-.keypadDisplay{
-  font-size: 32px;
-  font-weight: 800;
+.keypadDisplay {
+  font-size: 30px;
   text-align: right;
-  padding: 10px 12px;
+  padding: 10px;
   border: 1px solid #ddd;
   border-radius: 12px;
   background: #fafafa;
 }
 
-.keypadGrid{
+.keypadGrid {
   margin-top: 10px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
 
-.keyBtn{
+.keyBtn {
   font-size: 22px;
   padding: 16px 10px;
   border-radius: 14px;
@@ -290,107 +166,26 @@ tfoot td{
   background: #f6f6f6;
 }
 
-.keyBtn.primary{
+.keyBtn.primary {
   background: #2b7cff;
-  border-color: #2b7cff;
   color: #fff;
 }
 
-.keyBtn.danger{
+.keyBtn.danger {
   background: #ffefef;
-  border-color: #ffb3b3;
 }
 
-.keyBtn.warning{
+.keyBtn.warning {
   background: #fff7e6;
-  border-color: #ffd38a;
 }
 
-.keyBtn.wide{
+.keyBtn.wide {
   grid-column: 1 / span 3;
 }
 
-/* モーダルが狭い時（iPad縦など） */
+/* 狭い画面では上下配置 */
 @media (max-width: 900px){
-  .scoreInputs{ grid-template-columns: 1fr; }
-}
-
-/* =========================
-   点数入力モーダル：左一覧 + 右テンキー（2カラム）
-   ========================= */
-#scoreModal.modal{
-  overflow: hidden; /* モーダル全体はスクロールさせない（左だけスクロール） */
-}
-
-/* 2列の本体 */
-#scoreModal .modalBody{
-  display: grid;
-  grid-template-columns: 360px 1fr; /* 左を狭め / 右を広め（好みで調整） */
-  gap: 14px;
-  align-items: start;
-
-  /* ヘッダー分を除いた高さで収める */
-  max-height: calc(88dvh - 54px);
-}
-
-/* 左ペイン：ここだけ縦スクロール */
-#scoreModal .leftPane{
-  overflow: auto;
-  max-height: calc(88dvh - 54px);
-  padding-right: 4px; /* スクロールバー分の逃げ */
-}
-
-/* 右ペイン：テンキーは固定っぽく上に張り付け */
-#scoreModal .rightPane{
-  position: sticky;
-  top: 0;
-}
-
-/* 左側の一覧は“列幅狭めで一覧表示”に寄せる */
-#scoreModal .scoreInputs{
-  display: grid;
-  grid-template-columns: 1fr; /* 左は縦一覧 */
-  gap: 8px;
-  margin-top: 8px;
-}
-
-/* 行（名前＋点数）をコンパクトに */
-#scoreModal .scoreRow{
-  padding: 6px 8px;
-  gap: 6px;
-  grid-template-columns: 1fr 110px; /* 点数欄は狭め */
-}
-
-#scoreModal .scoreRow .name{
-  font-size: 13px;
-  line-height: 1.1;
-}
-
-#scoreModal .scoreRow input{
-  font-size: 18px;
-  padding: 6px 8px;
-  line-height: 1.1;
-}
-
-/* フッターは左ペイン内に収める */
-#scoreModal .modalFooter{
-  margin-top: 10px;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-/* iPad縦など狭い時は上下配置に戻す（保険） */
-@media (max-width: 900px){
-  #scoreModal .modalBody{
+  .modalBody {
     grid-template-columns: 1fr;
-    max-height: 88dvh;
-  }
-  #scoreModal .leftPane{
-    max-height: none;
-  }
-  #scoreModal .rightPane{
-    position: static;
   }
 }
-
-
