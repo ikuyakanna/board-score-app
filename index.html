@@ -28,8 +28,13 @@
   <!-- メイン画面 -->
   <!-- ===================== -->
   <div id="mainScreen" class="screen noProject">
-    <h1 id="projectTitle"></h1>
-    <button id="addScoreButton" class="btnPrimary">＋ 点数入力</button>
+
+    <!-- ★ここが重要：タイトルとボタンを同じ行にする -->
+    <div class="mainHeader">
+      <h1 id="projectTitle"></h1>
+      <button id="addScoreButton" class="btnPrimary">＋ 点数入力</button>
+    </div>
+
     <div class="tableContainer">
       <table id="scoreTable">
         <thead></thead>

@@ -58,8 +58,17 @@ function escapeHtml(str) {
     .replaceAll("'", "&#039;");
 }
 
+function stripCommas(s) {
+  return String(s ?? "").replace(/,/g, "");
+}
+
+function formatNumber(n) {
+  const num = Number(n ?? 0);
+  return Number.isFinite(num) ? num.toLocaleString("ja-JP") : "0";
+}
+
 function parseIntSafe(v) {
-  const n = parseInt(String(v).trim(), 10);
+  const n = parseInt(stripCommas(String(v).trim()), 10);
   return Number.isFinite(n) ? n : 0;
 }
 
@@ -282,7 +291,7 @@ function renderTable() {
     let tr = `<tr data-round-index="${idx}" style="cursor:pointer;"><td>R${idx + 1}</td>`;
     for (let i = 0; i < currentProject.members.length; i++) {
       const v = Number(row[i] ?? 0);
-      tr += `<td>${v}</td>`;
+      tr += `<td>${formatNumber(v)}</td>`;
     }
 
     tr += `
@@ -295,7 +304,7 @@ function renderTable() {
     tbody.insertAdjacentHTML("beforeend", tr);
   });
 
-  // totals 計算
+  // totals 計算（数値のまま）
   const totals = Array(currentProject.members.length).fill(0);
   currentProject.rounds.forEach(row => {
     for (let i = 0; i < totals.length; i++) totals[i] += Number(row[i] ?? 0);
@@ -303,15 +312,15 @@ function renderTable() {
 
   // TFOOT（Web用）
   let tfootHtml = "<tr><td>合計</td>";
-  totals.forEach(t => (tfootHtml += `<td>${t}</td>`));
+  totals.forEach(t => (tfootHtml += `<td>${formatNumber(t)}</td>`));
   tfootHtml += `<td class="colDelete"></td></tr>`;
-  table.querySelector("tfoot").innerHTML = tfootHtml;
+  table.querySelector("tfoot").innerHTML = "";
 
   // iPad対応：固定合計バー
   if (totalsSticky && totalsTableBody) {
     totalsSticky.classList.remove("hidden");
     let stickyRow = "<tr><td>合計</td>";
-    totals.forEach(t => (stickyRow += `<td>${t}</td>`));
+    totals.forEach(t => (stickyRow += `<td>${formatNumber(t)}</td>`));
     stickyRow += `<td class="colDelete"></td></tr>`;
     totalsTableBody.innerHTML = stickyRow;
   }
@@ -349,11 +358,12 @@ function buildScoreInputs(values) {
   currentProject.members.forEach((name, idx) => {
     const row = document.createElement("div");
     row.className = "scoreRow";
+
     const v = values && Array.isArray(values) ? Number(values[idx] ?? 0) : 0;
 
     row.innerHTML = `
       <div class="name">${escapeHtml(name)}</div>
-      <input type="text" inputmode="none" value="${v}" data-index="${idx}" />
+      <input type="text" inputmode="none" value="${formatNumber(v)}" data-index="${idx}" />
     `;
     scoreInputsContainer.appendChild(row);
   });
@@ -403,7 +413,7 @@ function closeScoreModal() {
 }
 
 // =============================
-// Activate input + keypad display
+// Activate input + keypad display（カンマ対応）
 // =============================
 function setActiveRowVisual(input) {
   scoreInputsContainer.querySelectorAll(".scoreRow").forEach(r => r.classList.remove("active"));
@@ -412,21 +422,23 @@ function setActiveRowVisual(input) {
 }
 
 function updateKeypadDisplay() {
-  const signed = (isNegative ? "-" : "") + inputDigits;
-  keypadDisplay.textContent = signed;
+  const formatted = formatNumber(parseInt(inputDigits, 10));
+  keypadDisplay.textContent = (isNegative ? "-" : "") + formatted;
 }
 
 function applyToActiveInput() {
   if (!activeInput) return;
-  const signed = (isNegative ? "-" : "") + inputDigits;
-  activeInput.value = signed;
+  const formatted = formatNumber(parseInt(inputDigits, 10));
+  activeInput.value = (isNegative ? "-" : "") + formatted;
 }
 
 function activateInput(input) {
   activeInput = input;
   setActiveRowVisual(input);
 
-  const raw = String(input.value || "0").trim();
+  const raw0 = String(input.value || "0").trim();
+  const raw = stripCommas(raw0);
+
   isNegative = raw.startsWith("-");
   inputDigits = raw.replace("-", "");
   if (inputDigits === "" || inputDigits === "0") inputDigits = "0";

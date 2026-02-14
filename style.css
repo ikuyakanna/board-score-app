@@ -98,6 +98,36 @@ button{
 }
 
 /* =========================
+   Main header (タイトル行 + 右上ボタン)
+   ========================= */
+.mainHeader{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+#projectTitle{
+  margin: 0;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ★古い fixed 指定が残ってても必ず無効化 */
+#addScoreButton{
+  position: static !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: auto !important;
+
+  padding: 12px 16px;
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+/* =========================
    Table + sticky header
    ========================= */
 
@@ -106,14 +136,14 @@ button{
   overflow: auto; /* 横も縦も */
   margin-top: 16px;
   padding-bottom: 6px;
-  max-height: calc(100dvh - 140px); /* iPad横想定：必要なら 110〜180 で調整 */
+  max-height: calc(100dvh - 140px);
   -webkit-overflow-scrolling: touch;
 }
 
 #scoreTable{
   border-collapse: collapse;
   width: 100%;
-  table-layout: fixed; /* ★重要：名前長さで列幅が変わらない */
+  table-layout: fixed;
   min-width: 0;
 }
 
@@ -186,13 +216,11 @@ button{
 #totalsTable td:first-child{ width: 60px; }
 #totalsTable td.colDelete{ width: 44px; padding: 6px 4px; }
 
-
 /* =========================
    未選択時：メイン画面は真っ白（何も見せない）
    ========================= */
-#mainScreen.noProject #projectTitle,
-#mainScreen.noProject .tableContainer,
-#mainScreen.noProject #addScoreButton{
+#mainScreen.noProject .mainHeader,
+#mainScreen.noProject .tableContainer{
   display: none !important;
 }
 
@@ -461,35 +489,3 @@ button{
     max-height: 40dvh;
   }
 }
-
-/* =========================
-   右上：タイトル行に点数入力ボタン
-   （古いfixed指定に必ず勝つ）
-   ========================= */
-.mainHeader{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-#projectTitle{
-  margin: 0;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* ★古い fixed を強制的に潰す */
-#addScoreButton{
-  position: static !important;
-  right: auto !important;
-  bottom: auto !important;
-  z-index: auto !important;
-
-  padding: 12px 16px;
-  font-size: 16px;
-  white-space: nowrap;
-}
-
