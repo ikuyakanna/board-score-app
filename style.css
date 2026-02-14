@@ -26,19 +26,27 @@ body {
 #sideMenu {
   position: fixed;
   top: 0;
-  left: -300px;   /* ← これが超重要 */
+  left: 0;
+  transform: translateX(-100%); /* ←完全に画面外へ */
   width: 300px;
+  max-width: 80vw;
   height: 100%;
   background: #222;
-  color: white;
+  color: #fff;
   padding: 20px;
-  transition: left 0.3s ease;
+  box-sizing: border-box;       /* ←padding込みで300pxに収める */
+  transition: transform 0.3s ease;
   z-index: 1002;
 }
 
-
 #sideMenu.open {
-  left: 0;
+  transform: translateX(0);     /* ←表示 */
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
 
 
