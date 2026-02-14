@@ -327,54 +327,54 @@ tfoot td{
   }
 
   /* 見出し周りを詰める */
-  #scoreModal .modalHeader h2{
+  #scoreModal.modalHeader h2{
     font-size: 18px;
     margin: 0;
   }
-  #scoreModal .hint{
+  #scoreModal.hint{
     margin: 6px 0 2px;
     font-size: 12px;
   }
 
   /* 入力エリア：2列にして高さを削減 */
-  #scoreModal .scoreInputs{
+  #scoreModal.scoreInputs{
     grid-template-columns: 1fr 1fr;
     gap: 8px;
     margin-top: 8px;
   }
 
   /* 各行（名前＋入力欄）をコンパクト化 */
-  #scoreModal .scoreRow{
+  #scoreModal.scoreRow{
     grid-template-columns: 1fr 120px; /* 入力欄を少し細く */
     gap: 8px;
     padding: 8px;
     border-radius: 12px;
   }
 
-  #scoreModal .scoreRow .name{
+  #scoreModal.scoreRow .name{
     font-size: 14px;   /* ←ここが「名前を小さく」の本体 */
     font-weight: 700;
     line-height: 1.2;
   }
 
-  #scoreModal .scoreRow input{
+  #scoreModal.scoreRow input{
     font-size: 18px;
     padding: 8px 10px;
     border-radius: 10px;
   }
 
   /* フッターも少し詰める */
-  #scoreModal .modalFooter{
+  #scoreModal.modalFooter{
     margin-top: 10px;
     gap: 8px;
   }
 
   /* テンキー表示だけ少し詰める（ボタンサイズは触らない） */
-  #scoreModal .keypadArea{
+  #scoreModal.keypadArea{
     margin-top: 10px;
     padding-top: 10px;
   }
-  #scoreModal .keypadDisplay{
+  #scoreModal.keypadDisplay{
     font-size: 28px;
     padding: 8px 10px;
   }
