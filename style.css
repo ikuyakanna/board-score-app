@@ -98,15 +98,15 @@ button{
 }
 
 /* =========================
-   Table + Header sticky
+   Table + sticky header
    ========================= */
 
-/* 表エリア：縦スクロールもここで受ける（ヘッダー固定のため） */
+/* 表エリア：縦スクロールをここで受ける（thead固定のため） */
 .tableContainer {
   overflow: auto; /* 横も縦も */
   margin-top: 16px;
   padding-bottom: 6px;
-  max-height: calc(100dvh - 140px); /* iPad横想定：必要なら微調整 */
+  max-height: calc(100dvh - 140px); /* iPad横想定：必要なら 110〜180 で調整 */
   -webkit-overflow-scrolling: touch;
 }
 
@@ -155,14 +155,36 @@ button{
   background: #fff;
 }
 
-/* 合計行（tfoot）も固定 */
-#scoreTable tfoot td{
+/* iPad対応：合計バー（テーブル外）を固定 */
+.totalsSticky{
   position: sticky;
   bottom: 0;
-  z-index: 4;
-  background: #fafafa; /* 下が透けない */
+  z-index: 6;
+  background: #fafafa;
+  border-top: 1px solid #ccc;
 }
 
+#totalsTable{
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+#totalsTable td{
+  border: 1px solid #ccc;
+  padding: 12px;
+  text-align: center;
+  font-size: 18px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  background: #fafafa;
+}
+
+#totalsTable td:first-child{ width: 60px; }
+#totalsTable td.colDelete{ width: 44px; padding: 6px 4px; }
 
 /* 右下ボタン */
 #addScoreButton {
@@ -404,7 +426,7 @@ button{
   grid-column: 1 / span 3;
 }
 
-/* 右端ゴミ箱ボタン（サイドメニュー用） */
+/* 右端ゴミ箱ボタン（サイドメニュー） */
 .iconBtn{
   border: none;
   background: transparent;

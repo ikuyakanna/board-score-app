@@ -177,10 +177,8 @@ function renderProjectList() {
       </div>
     `;
 
-    // 行クリック＝選択
     li.addEventListener("click", () => selectProject(p.id));
 
-    // ゴミ箱クリック＝削除（選択させない）
     const delBtn = li.querySelector('button[data-action="deleteProject"]');
     delBtn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -244,11 +242,15 @@ function createProject() {
 window.createProject = createProject;
 
 // =============================
-// Render table（colgroup無し安定版）
+// Render table（合計バーも更新）
 // =============================
 function renderTable() {
   const titleEl = document.getElementById("projectTitle");
   const table = document.getElementById("scoreTable");
+
+  const totalsSticky = document.getElementById("totalsSticky");
+  const totalsTableBody = document.querySelector("#totalsTable tbody");
+
   if (!table) return;
 
   // 未選択なら空
@@ -257,12 +259,14 @@ function renderTable() {
     table.querySelector("thead").innerHTML = "";
     table.querySelector("tbody").innerHTML = "";
     table.querySelector("tfoot").innerHTML = "";
+    if (totalsSticky) totalsSticky.classList.add("hidden");
+    if (totalsTableBody) totalsTableBody.innerHTML = "";
     return;
   }
 
   if (titleEl) titleEl.textContent = currentProject.name || "";
 
-  // THEAD（最後に削除列）
+  // THEAD
   let theadHtml = "<tr><th></th>";
   currentProject.members.forEach(member => {
     theadHtml += `<th>${escapeHtml(member)}</th>`;
@@ -270,7 +274,7 @@ function renderTable() {
   theadHtml += `<th class="colDelete"></th></tr>`;
   table.querySelector("thead").innerHTML = theadHtml;
 
-  // TBODY（各行の右端に削除）
+  // TBODY
   const tbody = table.querySelector("tbody");
   tbody.innerHTML = "";
 
@@ -291,16 +295,26 @@ function renderTable() {
     tbody.insertAdjacentHTML("beforeend", tr);
   });
 
-  // TFOOT（合計）
+  // totals 計算
   const totals = Array(currentProject.members.length).fill(0);
   currentProject.rounds.forEach(row => {
     for (let i = 0; i < totals.length; i++) totals[i] += Number(row[i] ?? 0);
   });
 
+  // TFOOT（Web用）
   let tfootHtml = "<tr><td>合計</td>";
   totals.forEach(t => (tfootHtml += `<td>${t}</td>`));
   tfootHtml += `<td class="colDelete"></td></tr>`;
   table.querySelector("tfoot").innerHTML = tfootHtml;
+
+  // iPad対応：固定合計バー
+  if (totalsSticky && totalsTableBody) {
+    totalsSticky.classList.remove("hidden");
+    let stickyRow = "<tr><td>合計</td>";
+    totals.forEach(t => (stickyRow += `<td>${t}</td>`));
+    stickyRow += `<td class="colDelete"></td></tr>`;
+    totalsTableBody.innerHTML = stickyRow;
+  }
 }
 
 // =============================
