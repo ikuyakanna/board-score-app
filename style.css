@@ -186,42 +186,6 @@ button{
 #totalsTable td:first-child{ width: 60px; }
 #totalsTable td.colDelete{ width: 44px; padding: 6px 4px; }
 
-/* メイン上部：タイトル行（右に点数入力） */
-.mainHeader{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-/* タイトルが長い時に潰れない */
-#projectTitle{
-  margin: 0;
-  font-size: 28px;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* 右上ボタン */
-#addScoreButton{
-  position: static;   /* fixedをやめる */
-  padding: 12px 16px;
-  font-size: 16px;
-  white-space: nowrap;
-}
-
-
-/* 右下ボタン
-#addScoreButton {
-  position: fixed;
-  right: 22px;
-  bottom: 22px;
-  padding: 14px 20px;
-  font-size: 18px;
-  z-index: 900;
-} */
 
 /* =========================
    未選択時：メイン画面は真っ白（何も見せない）
@@ -497,3 +461,35 @@ button{
     max-height: 40dvh;
   }
 }
+
+/* =========================
+   右上：タイトル行に点数入力ボタン
+   （古いfixed指定に必ず勝つ）
+   ========================= */
+.mainHeader{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+#projectTitle{
+  margin: 0;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ★古い fixed を強制的に潰す */
+#addScoreButton{
+  position: static !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: auto !important;
+
+  padding: 12px 16px;
+  font-size: 16px;
+  white-space: nowrap;
+}
+
