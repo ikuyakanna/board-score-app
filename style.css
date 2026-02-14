@@ -22,41 +22,11 @@ body {
   z-index: 1001;
 }
 
-/* サイドメニュー */
-#sideMenu {
-  position: fixed;
-  top: 0;
-  left: 0;
-  transform: translateX(-100%); /* ←完全に画面外へ */
-  width: 300px;
-  max-width: 80vw;
-  height: 100%;
-  background: #222;
-  color: #fff;
-  padding: 20px;
-  box-sizing: border-box;       /* ←padding込みで300pxに収める */
-  transition: transform 0.3s ease;
-  z-index: 1002;
-}
-
-#sideMenu.open {
-  transform: translateX(0);     /* ←表示 */
-}
 
 html, body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-}
-
-
-#overlay {
-  display: none;
-}
-
-
-#overlay.show {
-  display: block;
 }
 
 /* テーブル */
@@ -83,4 +53,43 @@ th, td {
   bottom: 30px;
   padding: 15px 25px;
   font-size: 18px;
+}
+
+/* --- Side menu (final) --- */
+#sideMenu{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300px;
+  max-width: 80vw;
+  height: 100dvh;
+  padding: 20px;
+  box-sizing: border-box;
+
+  background: #222;
+  color: #fff;
+
+  transform: translateX(-100%);
+  transition: transform .25s ease;
+
+  z-index: 2002;
+  pointer-events: none; /* 閉じてる時は触れない */
+}
+
+#sideMenu.open{
+  transform: translateX(0);
+  pointer-events: auto; /* 開いてる時は触れる */
+}
+
+/* --- Overlay (final) --- */
+#overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  display: none;
+  z-index: 2001;
+}
+
+#overlay.show{
+  display: block;
 }

@@ -8,16 +8,31 @@ let currentProject = {
   rounds: []
 };
 
-
-menuButton.addEventListener("click", () => {
+function openMenu(){
   sideMenu.classList.add("open");
   overlay.classList.add("show");
-});
+}
 
-overlay.addEventListener("click", () => {
+function closeMenu(){
   sideMenu.classList.remove("open");
   overlay.classList.remove("show");
+}
+
+menuButton.addEventListener("click", (e) => {
+  e.stopPropagation();
+  openMenu();
 });
+
+overlay.addEventListener("click", closeMenu);
+
+// メニュー外クリックでも閉じたい場合（保険）
+document.addEventListener("click", (e) => {
+  if (!sideMenu.classList.contains("open")) return;
+  if (!sideMenu.contains(e.target) && e.target !== menuButton) {
+    closeMenu();
+  }
+});
+
 
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(screen => {
