@@ -1,22 +1,73 @@
+/* =========================
+   Base
+   ========================= */
 html, body {
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
   font-family: sans-serif;
   background: #fff;
 }
 
-/* 画面 */
+/* 画面共通 */
 .screen { display: block; }
-.hidden { display: none; }
 
-#mainScreen,
-#projectScreen,
-#memberScreen {
+/* hidden は必ず勝つ（モーダル常時表示・画面の重なり防止） */
+.hidden { display: none !important; }
+
+/* =========================
+   Layout paddings
+   ========================= */
+/* ☰と被らないようにメインだけ左余白 */
+#mainScreen {
   padding: 20px;
   padding-left: 76px;
 }
 
-/* ボタン */
+/* 新規画面の余白 */
+#projectScreen, #memberScreen {
+  padding: 20px;
+  padding-left: 76px;
+}
+
+.rowButtons {
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+}
+
+/* =========================
+   Form / text helpers
+   ========================= */
+input {
+  font-size: 18px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #bbb;
+  width: min(520px, 92vw);
+  box-sizing: border-box;
+}
+
+.memberInputs {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 10px;
+  max-width: 520px;
+}
+
+.muted {
+  color: #666;
+  font-size: 14px;
+}
+
+.hint {
+  margin: 8px 0 4px;
+}
+
+/* =========================
+   Buttons
+   ========================= */
 button {
   cursor: pointer;
   border: 1px solid #bbb;
@@ -34,8 +85,12 @@ button {
 
 .btnSecondary {
   background: #f6f6f6;
+  color: #111;
 }
 
+/* =========================
+   Hamburger
+   ========================= */
 #menuButton {
   position: fixed;
   top: 16px;
@@ -43,12 +98,16 @@ button {
   font-size: 28px;
   cursor: pointer;
   z-index: 1001;
+  user-select: none;
 }
 
-/* テーブル */
+/* =========================
+   Table
+   ========================= */
 .tableContainer {
   overflow-x: auto;
   margin-top: 16px;
+  padding-bottom: 6px;
 }
 
 table {
@@ -60,15 +119,99 @@ th, td {
   border: 1px solid #ccc;
   padding: 12px;
   text-align: center;
+  font-size: 18px;
 }
 
-/* モーダル */
+tfoot td {
+  font-weight: 700;
+  background: #fafafa;
+}
+
+/* 右下ボタン */
+#addScoreButton {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  padding: 14px 20px;
+  font-size: 18px;
+  z-index: 900;
+}
+
+/* =========================
+   Side menu + overlay
+   ========================= */
+#sideMenu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300px;
+  max-width: 80vw;
+  height: 100dvh;
+  padding: 20px;
+  box-sizing: border-box;
+
+  background: #222;
+  color: #fff;
+
+  /* 初期は必ず隠す */
+  transform: translateX(-100%);
+  transition: transform .25s ease;
+
+  z-index: 2002;
+  pointer-events: none;
+}
+
+#sideMenu.open {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+#sideMenu hr {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,.2);
+  margin: 14px 0;
+}
+
+#sideMenu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#sideMenu li {
+  padding: 10px 8px;
+  border-radius: 10px;
+}
+
+#sideMenu li:hover {
+  background: rgba(255,255,255,.08);
+}
+
+#overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  display: none;
+  z-index: 2001;
+}
+
+#overlay.show {
+  display: block;
+}
+
+/* =========================
+   Modal overlay + modal
+   ========================= */
 .modalOverlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,.35);
   z-index: 3000;
 }
+
+/* 念のため個別にも hidden を最優先 */
+#scoreModal.hidden { display: none !important; }
+#scoreModalOverlay.hidden { display: none !important; }
 
 .modal {
   position: fixed;
@@ -77,46 +220,64 @@ th, td {
   transform: translate(-50%,-50%);
   width: min(1000px, 95vw);
   height: 90dvh;
+
   background: #fff;
   border-radius: 16px;
+  z-index: 3001;
   padding: 16px;
   box-sizing: border-box;
-  z-index: 3001;
-  display: flex;
-  flex-direction: column;
+
+  /* ★重要：モーダルはスクロールさせず、中身で制御 */
+  overflow: hidden;
 }
 
 .modalHeader {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-/* 2カラム */
+.modalClose {
+  font-size: 28px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px 10px;
+}
+
+/* =========================
+   Modal layout: left list + right keypad
+   ========================= */
 .modalBody {
+  margin-top: 10px;
+  height: calc(90dvh - 70px); /* ヘッダー分ざっくり引く */
   display: grid;
   grid-template-columns: 360px 1fr;
-  gap: 16px;
-  flex: 1;
-  overflow: hidden;
+  gap: 14px;
+  align-items: start;
 }
 
-/* 左：スクロール */
+/* 左：一覧だけスクロール */
 .leftPane {
-  overflow-y: auto;
+  height: 100%;
+  overflow: auto;
   padding-right: 6px;
 }
 
 .scoreInputs {
-  display: grid;
-  gap: 8px;
   margin-top: 8px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
 }
 
 .scoreRow {
   display: grid;
   grid-template-columns: 1fr 110px;
   gap: 6px;
+  align-items: center;
+
   padding: 6px 8px;
   border: 1px solid #ddd;
   border-radius: 10px;
@@ -124,43 +285,65 @@ th, td {
 
 .scoreRow .name {
   font-size: 13px;
+  font-weight: 700;
+  line-height: 1.1;
 }
 
 .scoreRow input {
   font-size: 18px;
   padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid #bbb;
   text-align: right;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* 右：テンキー固定 */
+.scoreRow.active {
+  border-color: #2b7cff;
+  box-shadow: 0 0 0 3px rgba(43,124,255,.15);
+}
+
+.modalFooter {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* 右：テンキー */
 .rightPane {
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
 
+/* テンキーは上に置いてOK（固定っぽく見せたいなら sticky にしてもOK） */
 .keypadArea {
-  margin-top: auto;
+  margin-top: 0;
+  padding-top: 0;
 }
 
 .keypadDisplay {
   font-size: 30px;
+  font-weight: 800;
   text-align: right;
-  padding: 8px;
+  padding: 8px 10px;
   border: 1px solid #ddd;
   border-radius: 12px;
   background: #fafafa;
 }
 
 .keypadGrid {
-  margin-top: 8px;
+  margin-top: 10px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 8px; /* 10→8（縦をちょい縮め） */
 }
 
 .keyBtn {
   font-size: 22px;
-  padding: 14px 10px;
+  padding: 14px 10px; /* 16→14（縦をちょい縮め） */
   border-radius: 14px;
   border: 1px solid #bbb;
   background: #f6f6f6;
@@ -168,31 +351,43 @@ th, td {
 
 .keyBtn.primary {
   background: #2b7cff;
+  border-color: #2b7cff;
   color: #fff;
 }
 
 .keyBtn.danger {
   background: #ffefef;
+  border-color: #ffb3b3;
 }
 
 .keyBtn.warning {
   background: #fff7e6;
+  border-color: #ffd38a;
 }
 
 .keyBtn.wide {
   grid-column: 1 / span 3;
 }
 
-/* 狭い画面では上下配置 */
-@media (max-width: 900px){
+/* =========================
+   Responsive: narrow screens
+   ========================= */
+@media (max-width: 900px) {
+  .modal {
+    height: 88dvh;
+  }
+
   .modalBody {
+    height: calc(88dvh - 70px);
     grid-template-columns: 1fr;
   }
+
+  .leftPane {
+    height: auto;
+    max-height: 40dvh; /* 上：一覧 */
+  }
+
+  .rightPane {
+    height: auto;
+  }
 }
-
-/* hidden は必ず勝つ（モーダルが常時表示になるのを防ぐ） */
-.hidden { display: none !important; }
-
-/* 念のため：この2つも hidden を最優先 */
-#scoreModal.hidden { display: none !important; }
-#scoreModalOverlay.hidden { display: none !important; }
