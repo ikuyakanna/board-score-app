@@ -18,7 +18,6 @@ function saveAllProjects(projects) {
 }
 
 function uid() {
-  // ざっくりユニークでOK（localStorage用途）
   return "p_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
 }
 
@@ -35,6 +34,9 @@ let currentProject = {
   rounds: [],
   updatedAt: 0
 };
+
+// 初期は「未選択」スタート
+let hasSelectedProject = false;
 
 // テンキー入力状態
 let activeInput = null;
@@ -64,6 +66,13 @@ function normalizeDigits(d) {
   return d;
 }
 
+function setMainNoProjectState(on) {
+  const main = document.getElementById("mainScreen");
+  if (!main) return;
+  if (on) main.classList.add("noProject");
+  else main.classList.remove("noProject");
+}
+
 // =============================
 // Screen switching (global)
 // =============================
@@ -80,16 +89,15 @@ window.showScreen = showScreen;
 // =============================
 function syncCurrentToList() {
   if (!currentProject.id) return;
+
   const idx = projects.findIndex(p => p.id === currentProject.id);
   if (idx >= 0) projects[idx] = structuredClone(currentProject);
   else projects.unshift(structuredClone(currentProject));
 
-  // 更新日で降順に並べる
   projects.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
 
   saveAllProjects(projects);
   renderProjectList();
-  updateEmptyState();
 }
 
 function selectProject(id) {
@@ -99,9 +107,15 @@ function selectProject(id) {
   currentProjectId = id;
   currentProject = structuredClone(p);
 
+  hasSelectedProject = true;
+  setMainNoProjectState(false);
+
+  const addBtn = document.getElementById("addScoreButton");
+  if (addBtn) addBtn.disabled = false;
+
   renderTable();
-  updateEmptyState();
   showScreen("mainScreen");
+  closeMenu();
 }
 
 function renderProjectList() {
@@ -119,6 +133,7 @@ function renderProjectList() {
     const li = document.createElement("li");
     li.style.cursor = "pointer";
     li.dataset.id = p.id;
+
     li.innerHTML = `
       <div style="display:flex; flex-direction:column; gap:2px;">
         <div style="font-weight:700;">${escapeHtml(p.name)}</div>
@@ -127,26 +142,10 @@ function renderProjectList() {
         </div>
       </div>
     `;
+
     li.addEventListener("click", () => selectProject(p.id));
     ul.appendChild(li);
   });
-}
-
-function updateEmptyState() {
-  const overlay = document.getElementById("emptyProjectOverlay");
-  const addBtn = document.getElementById("addScoreButton");
-
-  if (!overlay) return;
-
-  const hasProject = projects.length > 0 && currentProject.members.length > 0;
-
-  if (!hasProject) {
-    overlay.classList.remove("hidden");
-    if (addBtn) addBtn.disabled = true;
-  } else {
-    overlay.classList.add("hidden");
-    if (addBtn) addBtn.disabled = false;
-  }
 }
 
 // =============================
@@ -175,7 +174,6 @@ function createProject() {
     return;
   }
 
-  // new project
   const id = uid();
   currentProjectId = id;
   currentProject = {
@@ -190,6 +188,13 @@ function createProject() {
   if (projectNameInput) projectNameInput.value = "";
   inputs.forEach(i => (i.value = ""));
 
+  // ★新規作成＝選択済み
+  hasSelectedProject = true;
+  setMainNoProjectState(false);
+
+  const addBtn = document.getElementById("addScoreButton");
+  if (addBtn) addBtn.disabled = false;
+
   syncCurrentToList();
   renderTable();
   showScreen("mainScreen");
@@ -201,10 +206,19 @@ window.createProject = createProject;
 // =============================
 function renderTable() {
   const titleEl = document.getElementById("projectTitle");
-  if (titleEl) titleEl.textContent = currentProject.name || "プロジェクト名";
-
   const table = document.getElementById("scoreTable");
   if (!table) return;
+
+  // 未選択（membersなし）なら何も描かない
+  if (!currentProject.members || currentProject.members.length === 0) {
+    if (titleEl) titleEl.textContent = "";
+    table.querySelector("thead").innerHTML = "";
+    table.querySelector("tbody").innerHTML = "";
+    table.querySelector("tfoot").innerHTML = "";
+    return;
+  }
+
+  if (titleEl) titleEl.textContent = currentProject.name || "プロジェクト名";
 
   // THEAD
   let theadHtml = "<tr><th></th>";
@@ -272,8 +286,8 @@ let scoreModal, scoreModalOverlay, scoreModalClose, scoreModalCancel, scoreModal
 let scoreInputsContainer, keypadDisplay;
 
 function openScoreModal() {
-  if (!currentProject.members || currentProject.members.length === 0) {
-    alert("先にプロジェクトを作成してください");
+  if (!hasSelectedProject || !currentProject.members || currentProject.members.length === 0) {
+    alert("先にプロジェクトを選択するか新規作成してください");
     return;
   }
 
@@ -360,7 +374,15 @@ document.addEventListener("DOMContentLoaded", () => {
     toggleMenu();
   });
 
-  overlay?.addEventListener("click", closeMenu);
+  // 外側タップ
+  overlay?.addEventListener("click", () => {
+    if (sideMenu?.classList.contains("open") && !hasSelectedProject) {
+      alert("プロジェクトを選択するか新規作成してください");
+      return;
+    }
+    closeMenu();
+  });
+
   sideMenu?.addEventListener("click", (e) => e.stopPropagation());
 
   // -------- Score button --------
@@ -379,7 +401,7 @@ document.addEventListener("DOMContentLoaded", () => {
     currentProject.updatedAt = Date.now();
 
     renderTable();
-    syncCurrentToList(); // ★保存
+    syncCurrentToList();
     closeScoreModal();
   });
 
@@ -447,18 +469,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // -------- 初期ロード（localStorage → 履歴表示）--------
+  // -------- 初期ロード（未選択スタート）--------
   projects = loadAllProjects();
   renderProjectList();
 
-  if (projects.length > 0) {
-    selectProject(projects[0].id); // 直近を自動選択
-  } else {
-    // 0件ならメイン画面に膜＋登録誘導
-    currentProjectId = null;
-    currentProject = { id: null, name: "", members: [], rounds: [], updatedAt: 0 };
-    renderTable();
-    updateEmptyState();
-    showScreen("mainScreen");
-  }
+  hasSelectedProject = false;
+  currentProjectId = null;
+  currentProject = { id: null, name: "", members: [], rounds: [], updatedAt: 0 };
+
+  setMainNoProjectState(true);
+  renderTable();
+  showScreen("mainScreen");
+
+  const addBtn = document.getElementById("addScoreButton");
+  if (addBtn) addBtn.disabled = true;
+
+  // ★0件でもメニューは開いたまま
+  openMenu();
 });
