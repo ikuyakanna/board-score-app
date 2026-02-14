@@ -7,20 +7,23 @@
 </head>
 <body>
 
-<!-- ☰ ハンバーガー -->
-<div id="menuButton">☰</div>
+<div class="header">
+  <!-- ☰ ハンバーガー -->
+  <div id="menuButton">☰</div>
 
-<!-- サイドメニュー -->
-<div id="sideMenu">
-  <h2>プロジェクト管理</h2>
-  <button onclick="showScreen('projectScreen')">＋ 新しいプロジェクト</button>
-  <hr>
-  <ul id="projectList">
-    <li>サンプルプロジェクト</li>
-  </ul>
+  <!-- サイドメニュー -->
+  <div id="sideMenu">
+    <h2>プロジェクト管理</h2>
+    <button onclick="showScreen('projectScreen')">＋ 新しいプロジェクト</button>
+    <hr>
+    <ul id="projectList">
+      <li>サンプルプロジェクト</li>
+    </ul>
+  </div>
+
+  <div id="overlay"></div>
 </div>
 
-<div id="overlay"></div>
 
 <!-- ===================== -->
 <!-- メイン画面 -->
